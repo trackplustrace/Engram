@@ -1,6 +1,6 @@
 # ENGRAM FM
 
-### a unified quadrature modulation engine
+### A unified quadrature modulation engine
 
 VST3 for macOS and Windows, from [track+trace](https://github.com/trackplustrace).
 This is a public beta: it is stable enough to make music with, it is not finished, and it is
