@@ -2,9 +2,13 @@
 
 ### A unified quadrature modulation engine
 
+![Engram](assets/engram.png)
+
 VST3 for macOS and Windows, by [track+trace](https://github.com/trackplustrace).
 This is a public beta: it is stable enough to make music with, it is not finished, and it is
 not code-signed.
+
+**[Read the manual](https://trackplustrace.github.io/Engram/engram_manual.html)** to see what every control does before installing.
 
 > **Before you install on macOS, read [Installing on macOS](#installing-on-macos).** macOS
 > will tell you Engram may contain malware and offer to delete it, and the button that
