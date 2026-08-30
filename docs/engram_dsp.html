@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENGRAM FM - DSP Reference</title>
+<style>
+
+  :root {
+    --bg:        #0e1015;
+    --bg2:       #12151a;
+    --bg3:       #181c23;
+    --bg-block:  #1b202a;
+    --border:    #262d39;
+    --teal:      #00d4aa;
+    --teal-dim:  #008a72;
+    --amber:     #e8a440;
+    --purple:    #8a70e8;
+    --magenta:   #c460b0;
+    --text:      #c8d0dc;
+    --text-dim:  #5a6475;
+    --text-label: #76828e;
+    --text-head: #e8edf5;
+    --red:       #ff5f5f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Verdana, sans-serif;
+    font-weight: 400;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+
+  /* Layout */
+  .wrapper {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  nav {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 40px 0 40px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .nav-logo {
+    padding: 0 24px 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+
+  .nav-logo .wordmark {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.18em;
+    color: var(--teal);
+    display: block;
+  }
+
+  .nav-logo .sub {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-label);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  nav a {
+    display: block;
+    padding: 5px 24px;
+    font-size: 12px;
+    color: var(--text-label);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.15s, border-color 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  nav a:hover { color: var(--text); border-left-color: var(--border); }
+  nav a.active { color: var(--teal); border-left-color: var(--teal); }
+
+  .nav-section-label {
+    padding: 16px 24px 4px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-label);
+    opacity: 0.5;
+  }
+
+  /* Main content */
+  main {
+    padding: 60px 72px 120px;
+    max-width: 880px;
+  }
+
+  /* Page header */
+  .page-header {
+    margin-bottom: 72px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header .label {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 16px;
+  }
+
+  .page-header h1 {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 38px;
+    font-weight: 600;
+    color: var(--text-head);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+
+  .page-header .tagline {
+    margin-top: 16px;
+    font-size: 15px;
+    color: var(--text-label);
+    max-width: 580px;
+    line-height: 1.6;
+  }
+
+  .version-badge {
+    display: inline-block;
+    margin-top: 20px;
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 10px;
+    color: var(--teal-dim);
+    border: 1px solid var(--teal-dim);
+    padding: 3px 10px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Sections */
+  section {
+    margin-bottom: 72px;
+    scroll-margin-top: 40px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header h2 {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--teal);
+  }
+
+  /* Section accent colours, matched to the app's section headers */
+  .section-header.magenta h2 { color: var(--magenta); }
+  .section-header.amber   h2 { color: var(--amber); }
+  .section-header.purple  h2 { color: var(--purple); }
+  .section-header.teal    h2 { color: var(--teal); }
+
+  .section-header .section-tag {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 10px;
+    color: var(--text-label);
+    opacity: 0.6;
+  }
+
+  /* Concept block */
+  .concept {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--teal);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    line-height: 1.75;
+  }
+
+  .concept.magenta { border-left-color: var(--magenta); }
+  .concept.amber   { border-left-color: var(--amber); }
+  .concept.purple  { border-left-color: var(--purple); }
+
+  .concept p + p { margin-top: 10px; }
+
+  /* Signal flow diagram (SVG) */
+  .sig-svg { width: 100%; height: auto; margin: 8px 0 4px; }
+
+  /* Parameter table */
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .param-table th {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-label);
+    text-align: left;
+    padding: 0 16px 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .param-table td {
+    padding: 9px 16px 9px 0;
+    vertical-align: top;
+    border-bottom: 1px solid #171c24;
+    line-height: 1.5;
+  }
+
+  .param-table tr:last-child td { border-bottom: none; }
+
+  .param-name {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    color: var(--text-head);
+    white-space: nowrap;
+    padding-right: 24px !important;
+  }
+
+  .param-range {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11px;
+    color: var(--teal-dim);
+    white-space: nowrap;
+  }
+
+  .param-desc { color: var(--text); }
+
+  /* Sub-section */
+  .sub-section { margin-bottom: 36px; }
+
+  .sub-section h3 {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 14px;
+  }
+
+  .sub-section h3.purple  { color: var(--purple); }
+  .sub-section h3.teal    { color: var(--teal); }
+  .sub-section h3.magenta { color: var(--magenta); }
+  .sub-section h3.red     { color: var(--red); }
+
+  /* Note / callout */
+  .note {
+    background: #131820;
+    border: 1px solid #1e2838;
+    border-left: 3px solid var(--amber);
+    padding: 14px 18px;
+    font-size: 12.5px;
+    color: var(--text-label);
+    margin: 20px 0;
+    line-height: 1.65;
+  }
+
+  .note.purple  { border-left-color: var(--purple); }
+  .note.teal    { border-left-color: var(--teal); }
+  .note.magenta { border-left-color: var(--magenta); }
+  .note.red     { border-left-color: var(--red); }
+
+  .note strong {
+    font-weight: 600;
+    color: var(--amber);
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .note.purple  strong { color: var(--purple); }
+  .note.teal    strong { color: var(--teal); }
+  .note.magenta strong { color: var(--magenta); }
+  .note.red     strong { color: var(--red); }
+
+  /* Inline code */
+  code {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    color: var(--teal);
+    background: #0f1419;
+    padding: 1px 5px;
+  }
+
+  /* Formula block */
+  .formula {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    background: #0f1419;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--teal);
+    padding: 13px 16px;
+    margin: 16px 0;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.75;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .formula.amber  { border-left-color: var(--amber); }
+  .formula.purple { border-left-color: var(--purple); }
+  .formula.magenta{ border-left-color: var(--magenta); }
+  .formula .cmt { color: var(--text-dim); }
+  .formula .k   { color: var(--amber); }
+  .formula .v   { color: var(--teal); }
+
+  /* Prose paragraphs */
+  .prose p { margin-bottom: 14px; }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose strong { color: var(--text-head); font-weight: 400; }
+  .prose em { color: var(--teal); font-style: normal; }
+
+  /* Inline accent spans */
+  span.teal    { color: var(--teal); }
+  span.purple  { color: var(--purple); }
+  span.amber   { color: var(--amber); }
+  span.magenta { color: var(--magenta); }
+  span.dim     { color: var(--text-dim); }
+
+  /* Cross-reference links */
+  .prose a, .note a, .param-desc a {
+    color: var(--teal);
+    text-decoration: none;
+    border-bottom: 1px solid var(--teal-dim);
+    transition: color 0.12s, border-color 0.12s;
+  }
+  .prose a:hover, .note a:hover, .param-desc a:hover {
+    color: var(--text-head);
+    border-bottom-color: var(--teal);
+  }
+
+  @media (max-width: 720px) {
+    .wrapper { grid-template-columns: 1fr; }
+    nav { position: relative; height: auto; }
+    main { padding: 32px 24px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+<!-- Sidebar nav -->
+<nav>
+  <div class="nav-logo">
+    <span class="wordmark">ENGRAM FM</span>
+    <span class="sub">DSP Reference</span>
+  </div>
+
+  <span class="nav-section-label">Foundation</span>
+  <a href="#scope">Scope &amp; Model</a>
+  <a href="#chain">Signal Chain</a>
+  <a href="#oversampling">Oversampling</a>
+  <a href="#filters">Filters</a>
+
+  <span class="nav-section-label">Core Path</span>
+  <a href="#carrier">Carrier Oscillator</a>
+  <a href="#hilbert">Hilbert Network</a>
+  <a href="#ssbpm">Shift &amp; PM Math</a>
+  <a href="#feedback">Feedback Loop</a>
+  <a href="#output">Output Stage</a>
+
+  <span class="nav-section-label">Modulators</span>
+  <a href="#envelope">Envelope Follower</a>
+  <a href="#lfo">LFO Bank</a>
+  <a href="#matrix">Modulation Matrix</a>
+
+  <span class="nav-section-label">Reference</span>
+  <a href="#sources">Sources</a>
+</nav>
+
+<!-- Main -->
+<main>
+
+  <div class="page-header">
+    <div class="label">track+trace &middot; technical documentation</div>
+    <h1>DSP Reference</h1>
+    <p class="tagline">The signal path, algorithms, and settings behind ENGRAM FM, at the detail the manual omits. Formulas are in plain DSP terms.</p>
+    <span class="version-badge">v0.44</span>
+  </div>
+
+  <!-- SCOPE & MODEL -->
+  <section id="scope">
+    <div class="section-header teal">
+      <h2>Scope &amp; Model</h2>
+      <span class="section-tag">what runs, and at what rate</span>
+    </div>
+
+    <div class="concept">
+      <p>Engram is a single-sideband (SSB) quadrature modulation engine. The input (the <em>modulator</em>) is multiplied against an internal wavetable oscillator (the <em>carrier</em>) through a 90&deg;-phase architecture, producing frequency shifting, ring modulation, and amplitude modulation on one path, with a second algorithm swapping the shift for FM-style phase modulation. This follows the Bode frequency-shifter / ring-modulator convention: carrier = internal oscillator, modulator = input.</p>
+      <p>This document describes what the DSP does, stage by stage. For musical intent and sound design, see the <a href="engram_manual.html">Manual &amp; Technical Reference</a>.</p>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Sample-rate model</h3>
+      <div class="prose">
+        <p>The core runs at <strong>4&times; oversampling</strong>. Everything time- or frequency-dependent inside the core (delay-line lengths, glide coefficients, engine filter cutoffs, diffusion delays, feedback-delay slew) is computed against the oversampled rate (host rate &times; 4), so behaviour holds across host sample rates.</p>
+        <p>Three stages are deliberate base-rate exceptions:</p>
+      </div>
+      <table class="param-table">
+        <tr><th>Base-rate stage</th><th>Why it is not oversampled</th></tr>
+        <tr><td class="param-name">Envelope follower</td><td class="param-desc">A control-rate detector that sits below the oversampling boundary; running it at 4&times; would give the wrong time constants.</td></tr>
+        <tr><td class="param-name">LFO bank</td><td class="param-desc">A control-rate generator; its time constants are defined at the host rate.</td></tr>
+        <tr><td class="param-name">Output filter</td><td class="param-desc">Runs at the base rate, now ahead of the output clip (moved pre-clip in v0.9.43.14 so the clip stays the last shaping stage and holds the ceiling; a post-clip filter phase-shifts the clamped waveform into peaks above 0 dBFS). Frequency-prewarped, so the resonant peak lands correctly at any rate and the base-rate response is accurate to ~0.01 dB &mdash; order-independent, verified by measurement. The clip now follows it, but the clip was always the base-rate aliasing source and an LP ahead of it only reduces its HF input.</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Latency</h3>
+      <div class="prose">
+        <p>Reported latency is <strong>the oversampler's latency only</strong> (~4 samples at the host rate), which keeps the zero-delay dry path aligned with the wet path. The wet path additionally carries the Hilbert network's bulk delay (impulse onset ~8 samples) plus a long dispersive ringing <em>tail</em>. That tail is dispersion, and is deliberately not delay-compensated: reporting the wet onset instead would buy under 0.1&nbsp;ms and pull the dry path early.</p>
+      </div>
+    </div>
+
+    <div class="note teal">
+      <strong>Precision</strong> &nbsp; Carrier phase accumulation and the sideband matrix run in double precision; the audio buffers and filters run in single precision. Carrier frequency, phase increment, and the Hilbert allpass states are kept in double because phase error accumulates over time.
+    </div>
+  </section>
+
+  <!-- SIGNAL CHAIN -->
+  <section id="chain">
+    <div class="section-header teal">
+      <h2>Signal Chain</h2>
+      <span class="section-tag">stage order</span>
+    </div>
+
+    <div class="prose" style="margin-bottom: 18px;">
+      <p>The main signal path runs left to right. The input path (magenta) enters the oversampled core (teal) along the main row, and the carrier feeds down from the row above. The feedback loop (amber) runs against that flow: it taps off after the core and returns right-to-left along the bottom, re-entering ahead of the Hilbert network (the arrowhead marks the reversed direction). Everything between the <span class="magenta">UPSAMPLE</span> and <span class="magenta">DOWNSAMPLE</span> boxes runs at 4&times; the host rate. The diamonds are BPMN gateways: <code>+</code> (parallel) marks the carrier join, where both branches always proceed; <code>O</code> (inclusive) marks the feedback re-entry and tap, where the loop may or may not be in circuit (feedback amount, or bypass); <code>&times;</code> (exclusive) marks the <span class="purple">EXP</span> / <span class="teal">ADD</span> split and re-join, where exactly one algorithm is active at a time. The carrier multiply itself lives inside the <span class="purple">cos/sin ROTATE</span> and <span class="teal">&times; CARRIER</span> boxes.</p>
+    </div>
+
+    <svg class="sig-svg" xmlns="http://www.w3.org/2000/svg" width="1520" height="152" viewBox="-108 9.9 1520 152">
+  <path d="M110.226,92.000L117.889,92.000" style="fill:none;stroke:rgb(196,96,176);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M433.234,92.438L458.852,92.438" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M756.034,92.000L781.163,92.000" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M478.853,92.426L502.909,92.437" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M217.888,91.989L266.373,92.000" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M801.158,91.995L825.350,92.000" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M522.890,92.438L548.434,92.438" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M286.355,92.000L333.215,92.000" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M845.332,92.000L867.868,92.000" style="fill:none;stroke:rgb(196,96,176);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M648.435,92.000L656.035,92.000" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M325.551,39.368L333.172,39.368" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M433.171,40.000L468.834,40.000L468.852,82.438" style="fill:none;stroke:rgb(0,212,170);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M755.595,40.000L791.258,40.000L791.276,82.438" style="fill:none;stroke:rgb(138,112,232);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M755.595,40.000L791.258,40.000L791.276,82.438" style="fill:none;stroke:rgb(138,112,232);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M512.834,82.476L512.834,39.368L548.434,39.368" style="fill:none;stroke:rgb(138,112,232);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M648.435,39.368L656.035,39.368" style="fill:none;stroke:rgb(138,112,232);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M835.314,102.000L835.314,132.632" style="fill:none;stroke:rgb(232,164,64);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M656.035,144.632L648.435,144.632" style="fill:none;stroke:rgb(232,164,64);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M548.435,144.632L540.834,144.632" style="fill:none;stroke:rgb(232,164,64);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M440.835,144.632L433.214,144.632" style="fill:none;stroke:rgb(232,164,64);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M333.210,144.632L276.356,144.632L276.356,102.000" style="fill:none;stroke:rgb(232,164,64);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M276.356,105L272.85,112L279.86,112Z" style="fill:rgb(232,164,64);stroke:none;"/>
+  <rect x="10.23" y="80.0" width="100" height="24" rx="2" style="fill:rgb(196,96,176);fill-opacity:0.08;stroke:rgb(196,96,176);stroke-width:1.3px;"/>
+  <g fill="rgb(196,96,176)" aria-label="INPUT GAIN"><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(31.0,95.26) scale(0.0093,-0.0093)"/><path d="M90 0V730H210L433 105Q431 130 428.5 166.5Q426 203 424.5 243.5Q423 284 423 320V730H510V0H390L168 625Q170 601 172.0 564.5Q174 528 175.5 487.5Q177 447 177 410V0Z" transform="translate(36.86,95.26) scale(0.0093,-0.0093)"/><path d="M92 0V730H327Q429 730 489.5 671.5Q550 613 550 515Q550 417 489.5 358.5Q429 300 327 300H182V0ZM182 381H327Q386 381 421.5 417.5Q457 454 457 515Q457 577 421.5 613.0Q386 649 327 649H182Z" transform="translate(42.72,95.26) scale(0.0093,-0.0093)"/><path d="M300 -10Q198 -10 144.0 46.5Q90 103 90 200V730H180V200Q180 140 209.5 105.0Q239 70 300 70Q360 70 390.0 105.0Q420 140 420 200V730H510V200Q510 102 456.5 46.0Q403 -10 300 -10Z" transform="translate(48.58,95.26) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(54.44,95.26) scale(0.0093,-0.0093)"/><path d="M304 -10Q204 -10 146.0 46.0Q88 102 88 200V530Q88 628 146.0 684.0Q204 740 304 740Q402 740 460.0 683.5Q518 627 518 530H428Q428 592 395.5 625.5Q363 659 304 659Q245 659 211.5 626.0Q178 593 178 531V200Q178 138 211.5 104.0Q245 70 304 70Q363 70 395.5 104.0Q428 138 428 200V300H280V382H518V200Q518 103 460.0 46.5Q402 -10 304 -10Z" transform="translate(66.16,95.26) scale(0.0093,-0.0093)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(72.02,95.26) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(77.88,95.26) scale(0.0093,-0.0093)"/><path d="M90 0V730H210L433 105Q431 130 428.5 166.5Q426 203 424.5 243.5Q423 284 423 320V730H510V0H390L168 625Q170 601 172.0 564.5Q174 528 175.5 487.5Q177 447 177 410V0Z" transform="translate(83.74,95.26) scale(0.0093,-0.0093)"/></g>
+  <rect x="117.89" y="80.0" width="100" height="24" rx="2" style="fill:rgb(196,96,176);fill-opacity:0.08;stroke:rgb(196,96,176);stroke-width:1.3px;"/>
+  <g fill="rgb(196,96,176)" aria-label="INPUT FILTER"><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(132.638,95.39) scale(0.0093,-0.0093)"/><path d="M90 0V730H210L433 105Q431 130 428.5 166.5Q426 203 424.5 243.5Q423 284 423 320V730H510V0H390L168 625Q170 601 172.0 564.5Q174 528 175.5 487.5Q177 447 177 410V0Z" transform="translate(138.498,95.39) scale(0.0093,-0.0093)"/><path d="M92 0V730H327Q429 730 489.5 671.5Q550 613 550 515Q550 417 489.5 358.5Q429 300 327 300H182V0ZM182 381H327Q386 381 421.5 417.5Q457 454 457 515Q457 577 421.5 613.0Q386 649 327 649H182Z" transform="translate(144.358,95.39) scale(0.0093,-0.0093)"/><path d="M300 -10Q198 -10 144.0 46.5Q90 103 90 200V730H180V200Q180 140 209.5 105.0Q239 70 300 70Q360 70 390.0 105.0Q420 140 420 200V730H510V200Q510 102 456.5 46.0Q403 -10 300 -10Z" transform="translate(150.218,95.39) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(156.078,95.39) scale(0.0093,-0.0093)"/><path d="M95 0V730H525V648H183V406H499V324H185V0Z" transform="translate(167.798,95.39) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(173.658,95.39) scale(0.0093,-0.0093)"/><path d="M130 0V730H220V82H550V0Z" transform="translate(179.518,95.39) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(185.378,95.39) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(191.238,95.39) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(197.098,95.39) scale(0.0093,-0.0093)"/></g>
+  <rect x="333.21" y="80.0" width="100" height="24" rx="2" style="fill:rgb(0,212,170);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <g fill="rgb(0,212,170)" aria-label="HILBERT PAIR"><path d="M93 0V730H183V418H417V730H507V0H417V336H183V0Z" transform="translate(348.013,95.39) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(353.873,95.39) scale(0.0093,-0.0093)"/><path d="M130 0V730H220V82H550V0Z" transform="translate(359.733,95.39) scale(0.0093,-0.0093)"/><path d="M93 0V730H300Q400 730 456.5 680.0Q513 630 513 541Q513 485 477.5 440.0Q442 395 385 384V381Q428 376 460.5 351.0Q493 326 511.5 287.5Q530 249 530 203Q530 109 472.5 54.5Q415 0 315 0ZM181 419H299Q357 419 390.5 450.0Q424 481 424 534Q424 587 391.0 618.0Q358 649 300 649H181ZM181 81H305Q368 81 404.5 114.5Q441 148 441 206Q441 266 404.5 303.5Q368 341 305 341H181Z" transform="translate(365.593,95.39) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(371.453,95.39) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(377.313,95.39) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(383.173,95.39) scale(0.0093,-0.0093)"/><path d="M92 0V730H327Q429 730 489.5 671.5Q550 613 550 515Q550 417 489.5 358.5Q429 300 327 300H182V0ZM182 381H327Q386 381 421.5 417.5Q457 454 457 515Q457 577 421.5 613.0Q386 649 327 649H182Z" transform="translate(394.893,95.39) scale(0.0093,-0.0093)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(400.753,95.39) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(406.613,95.39) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(412.473,95.39) scale(0.0093,-0.0093)"/></g>
+  <rect x="548.43" y="80.0" width="100" height="24" rx="2" style="fill:rgb(0,212,170);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <g fill="rgb(0,212,170)" aria-label="× CARRIER"><path d="M156 136 105 188 246 329 105 471 156 522 298 381 443 526 494 474 349 329 491 188 439 136 298 278Z" transform="translate(571.968,95.39) scale(0.0093,-0.0093)"/><path d="M308 -10Q208 -10 150.0 46.0Q92 102 92 200V530Q92 628 150.0 684.0Q208 740 308 740Q406 740 464.0 683.5Q522 627 522 530H432Q432 592 399.5 625.5Q367 659 308 659Q249 659 215.5 625.5Q182 592 182 530V200Q182 138 215.5 104.5Q249 71 308 71Q367 71 399.5 104.5Q432 138 432 200H522Q522 103 464.0 46.5Q406 -10 308 -10Z" transform="translate(583.688,95.39) scale(0.0093,-0.0093)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(589.548,95.39) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(595.408,95.39) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(601.268,95.39) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(607.128,95.39) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(612.988,95.39) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(618.848,95.39) scale(0.0093,-0.0093)"/></g>
+  <rect x="656.03" y="80.0" width="100" height="24" rx="2" style="fill:rgb(0,212,170);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <g fill="rgb(0,212,170)" aria-label="SIDEBAND BLEND"><path d="M304 -10Q198 -10 135.0 46.0Q72 102 72 200H162Q162 139 201.0 104.5Q240 70 304 70Q366 70 403.0 106.0Q440 142 440 200Q440 244 416.5 276.5Q393 309 349 321L238 352Q169 372 129.5 423.5Q90 475 90 545Q90 603 116.0 647.0Q142 691 189.0 715.5Q236 740 297 740Q359 740 406.5 715.5Q454 691 481.0 647.5Q508 604 508 547H418Q418 597 384.0 628.5Q350 660 297 660Q244 660 211.0 628.5Q178 597 178 547Q178 507 199.5 478.5Q221 450 260 439L374 407Q447 387 487.5 331.5Q528 276 528 200Q528 104 467.0 47.0Q406 -10 304 -10Z" transform="translate(665.224,95.39) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(671.084,95.39) scale(0.0093,-0.0093)"/><path d="M92 0V730H281Q352 730 403.5 703.0Q455 676 483.5 627.0Q512 578 512 511V220Q512 153 483.5 103.5Q455 54 403.5 27.0Q352 0 281 0ZM182 80H281Q347 80 384.5 117.0Q422 154 422 220V511Q422 576 384.5 613.0Q347 650 281 650H182Z" transform="translate(676.944,95.39) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(682.804,95.39) scale(0.0093,-0.0093)"/><path d="M93 0V730H300Q400 730 456.5 680.0Q513 630 513 541Q513 485 477.5 440.0Q442 395 385 384V381Q428 376 460.5 351.0Q493 326 511.5 287.5Q530 249 530 203Q530 109 472.5 54.5Q415 0 315 0ZM181 419H299Q357 419 390.5 450.0Q424 481 424 534Q424 587 391.0 618.0Q358 649 300 649H181ZM181 81H305Q368 81 404.5 114.5Q441 148 441 206Q441 266 404.5 303.5Q368 341 305 341H181Z" transform="translate(688.664,95.39) scale(0.0093,-0.0093)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(694.524,95.39) scale(0.0093,-0.0093)"/><path d="M90 0V730H210L433 105Q431 130 428.5 166.5Q426 203 424.5 243.5Q423 284 423 320V730H510V0H390L168 625Q170 601 172.0 564.5Q174 528 175.5 487.5Q177 447 177 410V0Z" transform="translate(700.384,95.39) scale(0.0093,-0.0093)"/><path d="M92 0V730H281Q352 730 403.5 703.0Q455 676 483.5 627.0Q512 578 512 511V220Q512 153 483.5 103.5Q455 54 403.5 27.0Q352 0 281 0ZM182 80H281Q347 80 384.5 117.0Q422 154 422 220V511Q422 576 384.5 613.0Q347 650 281 650H182Z" transform="translate(706.244,95.39) scale(0.0093,-0.0093)"/><path d="M93 0V730H300Q400 730 456.5 680.0Q513 630 513 541Q513 485 477.5 440.0Q442 395 385 384V381Q428 376 460.5 351.0Q493 326 511.5 287.5Q530 249 530 203Q530 109 472.5 54.5Q415 0 315 0ZM181 419H299Q357 419 390.5 450.0Q424 481 424 534Q424 587 391.0 618.0Q358 649 300 649H181ZM181 81H305Q368 81 404.5 114.5Q441 148 441 206Q441 266 404.5 303.5Q368 341 305 341H181Z" transform="translate(717.964,95.39) scale(0.0093,-0.0093)"/><path d="M130 0V730H220V82H550V0Z" transform="translate(723.824,95.39) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(729.684,95.39) scale(0.0093,-0.0093)"/><path d="M90 0V730H210L433 105Q431 130 428.5 166.5Q426 203 424.5 243.5Q423 284 423 320V730H510V0H390L168 625Q170 601 172.0 564.5Q174 528 175.5 487.5Q177 447 177 410V0Z" transform="translate(735.544,95.39) scale(0.0093,-0.0093)"/><path d="M92 0V730H281Q352 730 403.5 703.0Q455 676 483.5 627.0Q512 578 512 511V220Q512 153 483.5 103.5Q455 54 403.5 27.0Q352 0 281 0ZM182 80H281Q347 80 384.5 117.0Q422 154 422 220V511Q422 576 384.5 613.0Q347 650 281 650H182Z" transform="translate(741.404,95.39) scale(0.0093,-0.0093)"/></g>
+  <rect x="548.43" y="27.37" width="100" height="24" rx="2" style="fill:rgb(138,112,232);fill-opacity:0.08;stroke:rgb(138,112,232);stroke-width:1.3px;"/>
+  <g fill="rgb(138,112,232)" aria-label="PM DEPTH"><path d="M92 0V730H327Q429 730 489.5 671.5Q550 613 550 515Q550 417 489.5 358.5Q429 300 327 300H182V0ZM182 381H327Q386 381 421.5 417.5Q457 454 457 515Q457 577 421.5 613.0Q386 649 327 649H182Z" transform="translate(575.135,42.76) scale(0.0093,-0.0093)"/><path d="M72 0V730H205L298 414L395 730H528V0H441V345Q441 394 442.5 457.5Q444 521 447.0 586.0Q450 651 454 703L336 326H258L145 694Q153 620 156.0 532.0Q159 444 159 345V0Z" transform="translate(580.995,42.76) scale(0.0093,-0.0093)"/><path d="M92 0V730H281Q352 730 403.5 703.0Q455 676 483.5 627.0Q512 578 512 511V220Q512 153 483.5 103.5Q455 54 403.5 27.0Q352 0 281 0ZM182 80H281Q347 80 384.5 117.0Q422 154 422 220V511Q422 576 384.5 613.0Q347 650 281 650H182Z" transform="translate(592.715,42.76) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(598.575,42.76) scale(0.0093,-0.0093)"/><path d="M92 0V730H327Q429 730 489.5 671.5Q550 613 550 515Q550 417 489.5 358.5Q429 300 327 300H182V0ZM182 381H327Q386 381 421.5 417.5Q457 454 457 515Q457 577 421.5 613.0Q386 649 327 649H182Z" transform="translate(604.435,42.76) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(610.295,42.76) scale(0.0093,-0.0093)"/><path d="M93 0V730H183V418H417V730H507V0H417V336H183V0Z" transform="translate(616.155,42.76) scale(0.0093,-0.0093)"/></g>
+  <rect x="656.03" y="27.37" width="100" height="24" rx="2" style="fill:rgb(138,112,232);fill-opacity:0.08;stroke:rgb(138,112,232);stroke-width:1.3px;"/>
+  <g fill="rgb(138,112,232)" aria-label="cos/sin ROTATE"><path d="M308 -10Q208 -10 148.0 46.0Q88 102 88 200V350Q88 448 148.0 504.0Q208 560 308 560Q403 560 461.5 509.0Q520 458 523 370H433Q430 423 397.0 451.5Q364 480 308 480Q249 480 213.5 446.5Q178 413 178 351V200Q178 138 213.5 104.0Q249 70 308 70Q364 70 397.0 99.0Q430 128 433 180H523Q520 92 461.5 41.0Q403 -10 308 -10Z" transform="translate(665.113,42.46) scale(0.0093,-0.0093)"/><path d="M300 -8Q201 -8 142.5 50.0Q84 108 84 212V338Q84 443 142.0 500.5Q200 558 300 558Q400 558 458.0 500.5Q516 443 516 338V212Q516 108 457.5 50.0Q399 -8 300 -8ZM300 72Q359 72 392.5 105.0Q426 138 426 202V348Q426 412 392.5 445.0Q359 478 300 478Q242 478 208.0 445.0Q174 412 174 348V202Q174 138 208.0 105.0Q242 72 300 72Z" transform="translate(670.973,42.46) scale(0.0093,-0.0093)"/><path d="M278 -8Q186 -8 135.5 33.5Q85 75 85 151H175Q175 113 202.0 91.5Q229 70 278 70H322Q372 70 399.5 92.0Q427 114 427 154Q427 225 362 234L210 256Q154 264 123.0 302.5Q92 341 92 404Q92 476 141.5 517.0Q191 558 278 558H322Q402 558 452.5 518.5Q503 479 507 415H416Q414 444 388.5 463.0Q363 482 322 482H278Q232 482 206.0 461.0Q180 440 180 404Q180 346 233 338L375 318Q515 298 515 154Q515 77 464.5 34.5Q414 -8 322 -8Z" transform="translate(676.833,42.46) scale(0.0093,-0.0093)"/><path d="M75 -110 430 830H525L170 -110Z" transform="translate(682.693,42.46) scale(0.0093,-0.0093)"/><path d="M278 -8Q186 -8 135.5 33.5Q85 75 85 151H175Q175 113 202.0 91.5Q229 70 278 70H322Q372 70 399.5 92.0Q427 114 427 154Q427 225 362 234L210 256Q154 264 123.0 302.5Q92 341 92 404Q92 476 141.5 517.0Q191 558 278 558H322Q402 558 452.5 518.5Q503 479 507 415H416Q414 444 388.5 463.0Q363 482 322 482H278Q232 482 206.0 461.0Q180 440 180 404Q180 346 233 338L375 318Q515 298 515 154Q515 77 464.5 34.5Q414 -8 322 -8Z" transform="translate(688.553,42.46) scale(0.0093,-0.0093)"/><path d="M85 0V82H280V468H105V550H370V82H555V0ZM315 649Q282 649 263.0 666.0Q244 683 244 712Q244 742 263.0 759.5Q282 777 315 777Q348 777 367.0 759.5Q386 742 386 712Q386 683 367.0 666.0Q348 649 315 649Z" transform="translate(694.413,42.46) scale(0.0093,-0.0093)"/><path d="M92 0V550H182V445H183Q190 500 228.0 530.0Q266 560 329 560Q412 560 461.0 509.0Q510 458 510 370V0H420V354Q420 417 388.5 450.5Q357 484 303 484Q247 484 214.5 449.0Q182 414 182 350V0Z" transform="translate(700.273,42.46) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(711.993,42.46) scale(0.0093,-0.0093)"/><path d="M300 -10Q202 -10 145.0 47.0Q88 104 88 210V520Q88 626 145.0 683.0Q202 740 300 740Q398 740 455.0 683.0Q512 626 512 521V210Q512 104 455.0 47.0Q398 -10 300 -10ZM300 71Q359 71 390.5 104.5Q422 138 422 200V530Q422 592 390.5 625.5Q359 659 300 659Q242 659 210.0 625.5Q178 592 178 530V200Q178 138 210.0 104.5Q242 71 300 71Z" transform="translate(717.853,42.46) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(723.713,42.46) scale(0.0093,-0.0093)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(729.573,42.46) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(735.433,42.46) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(741.293,42.46) scale(0.0093,-0.0093)"/></g>
+  <path d="M468.740,82.420L478.740,92.420L468.740,102.420L458.740,92.420L468.740,82.420Z" style="fill:rgb(27,32,42);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <path d="M468.740,86.266L468.740,98.573" style="fill:none;stroke:rgb(0,212,170);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M462.587,92.420L474.894,92.420" style="fill:none;stroke:rgb(0,212,170);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M512.891,82.420L522.891,92.420L512.891,102.420L502.891,92.420L512.891,82.420Z" style="fill:rgb(27,32,42);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <path d="M276.356,82.000L286.356,92.000L276.356,102.000L266.356,92.000L276.356,82.000Z" style="fill:rgb(27,32,42);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <circle cx="276.356" cy="92.000" r="3.4" style="fill:none;stroke:rgb(0,212,170);stroke-width:1px;"/>
+  <path d="M835.332,82.000L845.332,92.000L835.332,102.000L825.332,92.000L835.332,82.000Z" style="fill:rgb(27,32,42);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <circle cx="835.332" cy="92.000" r="3.4" style="fill:none;stroke:rgb(0,212,170);stroke-width:1px;"/>
+  <path d="M509.045,88.574L516.737,96.266" style="fill:none;stroke:rgb(0,212,170);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M516.737,88.574L509.045,96.266" style="fill:none;stroke:rgb(0,212,170);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M791.163,82.000L801.163,92.000L791.163,102.000L781.163,92.000L791.163,82.000Z" style="fill:rgb(27,32,42);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <path d="M787.317,88.154L795.009,95.846" style="fill:none;stroke:rgb(0,212,170);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M795.009,88.154L787.317,95.846" style="fill:none;stroke:rgb(0,212,170);stroke-width:1px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <g fill="rgb(0,212,170)" aria-label="ADD"><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(525.06,88.48) scale(0.0075,-0.0075)"/><path d="M92 0V730H281Q352 730 403.5 703.0Q455 676 483.5 627.0Q512 578 512 511V220Q512 153 483.5 103.5Q455 54 403.5 27.0Q352 0 281 0ZM182 80H281Q347 80 384.5 117.0Q422 154 422 220V511Q422 576 384.5 613.0Q347 650 281 650H182Z" transform="translate(530.46,88.48) scale(0.0075,-0.0075)"/><path d="M92 0V730H281Q352 730 403.5 703.0Q455 676 483.5 627.0Q512 578 512 511V220Q512 153 483.5 103.5Q455 54 403.5 27.0Q352 0 281 0ZM182 80H281Q347 80 384.5 117.0Q422 154 422 220V511Q422 576 384.5 613.0Q347 650 281 650H182Z" transform="translate(535.86,88.48) scale(0.0075,-0.0075)"/></g>
+  <g fill="rgb(138,112,232)" aria-label="EXP"><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(525.37,35.41) scale(0.0075,-0.0075)"/><path d="M40 0 250 370 51 730H155L268 514Q277 497 286.5 477.5Q296 458 302 447Q307 458 316.5 477.5Q326 497 335 514L450 730H549L350 376L560 0H457L332 232Q323 249 313.5 268.5Q304 288 299 300Q294 288 284.5 269.0Q275 250 266 233L140 0Z" transform="translate(530.77,35.41) scale(0.0075,-0.0075)"/><path d="M92 0V730H327Q429 730 489.5 671.5Q550 613 550 515Q550 417 489.5 358.5Q429 300 327 300H182V0ZM182 381H327Q386 381 421.5 417.5Q457 454 457 515Q457 577 421.5 613.0Q386 649 327 649H182Z" transform="translate(536.17,35.41) scale(0.0075,-0.0075)"/></g>
+  <g fill="rgb(90,100,117)" aria-label="CARRIER"><path d="M308 -10Q208 -10 150.0 46.0Q92 102 92 200V530Q92 628 150.0 684.0Q208 740 308 740Q406 740 464.0 683.5Q522 627 522 530H432Q432 592 399.5 625.5Q367 659 308 659Q249 659 215.5 625.5Q182 592 182 530V200Q182 138 215.5 104.5Q249 71 308 71Q367 71 399.5 104.5Q432 138 432 200H522Q522 103 464.0 46.5Q406 -10 308 -10Z" transform="translate(226.29,17.89) scale(0.008,-0.008)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(232.37,17.89) scale(0.008,-0.008)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(238.45,17.89) scale(0.008,-0.008)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(244.53,17.89) scale(0.008,-0.008)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(250.61,17.89) scale(0.008,-0.008)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(256.69,17.89) scale(0.008,-0.008)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(262.77,17.89) scale(0.008,-0.008)"/></g>
+  <rect x="225.55" y="27.37" width="100" height="24" rx="2" style="fill:rgb(0,212,170);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <g fill="rgb(0,212,170)" aria-label="CARRIER OSC"><path d="M308 -10Q208 -10 150.0 46.0Q92 102 92 200V530Q92 628 150.0 684.0Q208 740 308 740Q406 740 464.0 683.5Q522 627 522 530H432Q432 592 399.5 625.5Q367 659 308 659Q249 659 215.5 625.5Q182 592 182 530V200Q182 138 215.5 104.5Q249 71 308 71Q367 71 399.5 104.5Q432 138 432 200H522Q522 103 464.0 46.5Q406 -10 308 -10Z" transform="translate(243.395,42.75) scale(0.0093,-0.0093)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(249.255,42.75) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(255.115,42.75) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(260.975,42.75) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(266.835,42.75) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(272.695,42.75) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(278.555,42.75) scale(0.0093,-0.0093)"/><path d="M300 -10Q202 -10 145.0 47.0Q88 104 88 210V520Q88 626 145.0 683.0Q202 740 300 740Q398 740 455.0 683.0Q512 626 512 521V210Q512 104 455.0 47.0Q398 -10 300 -10ZM300 71Q359 71 390.5 104.5Q422 138 422 200V530Q422 592 390.5 625.5Q359 659 300 659Q242 659 210.0 625.5Q178 592 178 530V200Q178 138 210.0 104.5Q242 71 300 71Z" transform="translate(290.275,42.75) scale(0.0093,-0.0093)"/><path d="M304 -10Q198 -10 135.0 46.0Q72 102 72 200H162Q162 139 201.0 104.5Q240 70 304 70Q366 70 403.0 106.0Q440 142 440 200Q440 244 416.5 276.5Q393 309 349 321L238 352Q169 372 129.5 423.5Q90 475 90 545Q90 603 116.0 647.0Q142 691 189.0 715.5Q236 740 297 740Q359 740 406.5 715.5Q454 691 481.0 647.5Q508 604 508 547H418Q418 597 384.0 628.5Q350 660 297 660Q244 660 211.0 628.5Q178 597 178 547Q178 507 199.5 478.5Q221 450 260 439L374 407Q447 387 487.5 331.5Q528 276 528 200Q528 104 467.0 47.0Q406 -10 304 -10Z" transform="translate(296.135,42.75) scale(0.0093,-0.0093)"/><path d="M308 -10Q208 -10 150.0 46.0Q92 102 92 200V530Q92 628 150.0 684.0Q208 740 308 740Q406 740 464.0 683.5Q522 627 522 530H432Q432 592 399.5 625.5Q367 659 308 659Q249 659 215.5 625.5Q182 592 182 530V200Q182 138 215.5 104.5Q249 71 308 71Q367 71 399.5 104.5Q432 138 432 200H522Q522 103 464.0 46.5Q406 -10 308 -10Z" transform="translate(301.995,42.75) scale(0.0093,-0.0093)"/></g>
+  <rect x="333.17" y="27.37" width="100" height="24" rx="2" style="fill:rgb(0,212,170);fill-opacity:0.08;stroke:rgb(0,212,170);stroke-width:1.3px;"/>
+  <g fill="rgb(0,212,170)" aria-label="CARRIER FILTER"><path d="M308 -10Q208 -10 150.0 46.0Q92 102 92 200V530Q92 628 150.0 684.0Q208 740 308 740Q406 740 464.0 683.5Q522 627 522 530H432Q432 592 399.5 625.5Q367 659 308 659Q249 659 215.5 625.5Q182 592 182 530V200Q182 138 215.5 104.5Q249 71 308 71Q367 71 399.5 104.5Q432 138 432 200H522Q522 103 464.0 46.5Q406 -10 308 -10Z" transform="translate(342.118,42.75) scale(0.0093,-0.0093)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(347.978,42.75) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(353.838,42.75) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(359.698,42.75) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(365.558,42.75) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(371.418,42.75) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(377.278,42.75) scale(0.0093,-0.0093)"/><path d="M95 0V730H525V648H183V406H499V324H185V0Z" transform="translate(388.998,42.75) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(394.858,42.75) scale(0.0093,-0.0093)"/><path d="M130 0V730H220V82H550V0Z" transform="translate(400.718,42.75) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(406.578,42.75) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(412.438,42.75) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(418.298,42.75) scale(0.0093,-0.0093)"/></g>
+  <g fill="rgb(90,100,117)" aria-label="FEEDBACK LOOP"><path d="M95 0V730H525V648H183V406H499V324H185V0Z" transform="translate(152.04,144.96) scale(0.008,-0.008)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(158.12,144.96) scale(0.008,-0.008)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(164.2,144.96) scale(0.008,-0.008)"/><path d="M92 0V730H281Q352 730 403.5 703.0Q455 676 483.5 627.0Q512 578 512 511V220Q512 153 483.5 103.5Q455 54 403.5 27.0Q352 0 281 0ZM182 80H281Q347 80 384.5 117.0Q422 154 422 220V511Q422 576 384.5 613.0Q347 650 281 650H182Z" transform="translate(170.28,144.96) scale(0.008,-0.008)"/><path d="M93 0V730H300Q400 730 456.5 680.0Q513 630 513 541Q513 485 477.5 440.0Q442 395 385 384V381Q428 376 460.5 351.0Q493 326 511.5 287.5Q530 249 530 203Q530 109 472.5 54.5Q415 0 315 0ZM181 419H299Q357 419 390.5 450.0Q424 481 424 534Q424 587 391.0 618.0Q358 649 300 649H181ZM181 81H305Q368 81 404.5 114.5Q441 148 441 206Q441 266 404.5 303.5Q368 341 305 341H181Z" transform="translate(176.36,144.96) scale(0.008,-0.008)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(182.44,144.96) scale(0.008,-0.008)"/><path d="M308 -10Q208 -10 150.0 46.0Q92 102 92 200V530Q92 628 150.0 684.0Q208 740 308 740Q406 740 464.0 683.5Q522 627 522 530H432Q432 592 399.5 625.5Q367 659 308 659Q249 659 215.5 625.5Q182 592 182 530V200Q182 138 215.5 104.5Q249 71 308 71Q367 71 399.5 104.5Q432 138 432 200H522Q522 103 464.0 46.5Q406 -10 308 -10Z" transform="translate(188.52,144.96) scale(0.008,-0.008)"/><path d="M92 0V730H182V416H290L452 730H550L369 378L560 0H457L287 337H182V0Z" transform="translate(194.6,144.96) scale(0.008,-0.008)"/><path d="M130 0V730H220V82H550V0Z" transform="translate(206.76,144.96) scale(0.008,-0.008)"/><path d="M300 -10Q202 -10 145.0 47.0Q88 104 88 210V520Q88 626 145.0 683.0Q202 740 300 740Q398 740 455.0 683.0Q512 626 512 521V210Q512 104 455.0 47.0Q398 -10 300 -10ZM300 71Q359 71 390.5 104.5Q422 138 422 200V530Q422 592 390.5 625.5Q359 659 300 659Q242 659 210.0 625.5Q178 592 178 530V200Q178 138 210.0 104.5Q242 71 300 71Z" transform="translate(212.84,144.96) scale(0.008,-0.008)"/><path d="M300 -10Q202 -10 145.0 47.0Q88 104 88 210V520Q88 626 145.0 683.0Q202 740 300 740Q398 740 455.0 683.0Q512 626 512 521V210Q512 104 455.0 47.0Q398 -10 300 -10ZM300 71Q359 71 390.5 104.5Q422 138 422 200V530Q422 592 390.5 625.5Q359 659 300 659Q242 659 210.0 625.5Q178 592 178 530V200Q178 138 210.0 104.5Q242 71 300 71Z" transform="translate(218.92,144.96) scale(0.008,-0.008)"/><path d="M92 0V730H327Q429 730 489.5 671.5Q550 613 550 515Q550 417 489.5 358.5Q429 300 327 300H182V0ZM182 381H327Q386 381 421.5 417.5Q457 454 457 515Q457 577 421.5 613.0Q386 649 327 649H182Z" transform="translate(225.0,144.96) scale(0.008,-0.008)"/></g>
+  <rect x="656.03" y="132.63" width="100" height="24" rx="2" style="fill:rgb(232,164,64);fill-opacity:0.08;stroke:rgb(232,164,64);stroke-width:1.3px;"/>
+  <g fill="rgb(232,164,64)" aria-label="DELAY"><path d="M92 0V730H281Q352 730 403.5 703.0Q455 676 483.5 627.0Q512 578 512 511V220Q512 153 483.5 103.5Q455 54 403.5 27.0Q352 0 281 0ZM182 80H281Q347 80 384.5 117.0Q422 154 422 220V511Q422 576 384.5 613.0Q347 650 281 650H182Z" transform="translate(691.255,148.02) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(697.115,148.02) scale(0.0093,-0.0093)"/><path d="M130 0V730H220V82H550V0Z" transform="translate(702.975,148.02) scale(0.0093,-0.0093)"/><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(708.835,148.02) scale(0.0093,-0.0093)"/><path d="M255 0V273L35 730H131L273 430Q285 405 292.0 387.5Q299 370 301 362Q303 370 310.5 387.5Q318 405 330 430L472 730H565L345 273V0Z" transform="translate(714.695,148.02) scale(0.0093,-0.0093)"/></g>
+  <rect x="548.43" y="132.63" width="100" height="24" rx="2" style="fill:rgb(232,164,64);fill-opacity:0.08;stroke:rgb(232,164,64);stroke-width:1.3px;"/>
+  <g fill="rgb(232,164,64)" aria-label="FB FILTER"><path d="M95 0V730H525V648H183V406H499V324H185V0Z" transform="translate(572.014,148.02) scale(0.0093,-0.0093)"/><path d="M93 0V730H300Q400 730 456.5 680.0Q513 630 513 541Q513 485 477.5 440.0Q442 395 385 384V381Q428 376 460.5 351.0Q493 326 511.5 287.5Q530 249 530 203Q530 109 472.5 54.5Q415 0 315 0ZM181 419H299Q357 419 390.5 450.0Q424 481 424 534Q424 587 391.0 618.0Q358 649 300 649H181ZM181 81H305Q368 81 404.5 114.5Q441 148 441 206Q441 266 404.5 303.5Q368 341 305 341H181Z" transform="translate(577.874,148.02) scale(0.0093,-0.0093)"/><path d="M95 0V730H525V648H183V406H499V324H185V0Z" transform="translate(589.594,148.02) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(595.454,148.02) scale(0.0093,-0.0093)"/><path d="M130 0V730H220V82H550V0Z" transform="translate(601.314,148.02) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(607.174,148.02) scale(0.0093,-0.0093)"/><path d="M100 0V730H520V648H189V422H485V342H189V82H520V0Z" transform="translate(613.034,148.02) scale(0.0093,-0.0093)"/><path d="M93 0V730H318Q383 730 432.0 703.5Q481 677 508.0 630.0Q535 583 535 520Q535 446 497.0 393.0Q459 340 396 319L545 0H446L303 310H182V0ZM182 391H318Q374 391 408.0 426.5Q442 462 442 520Q442 579 408.0 614.0Q374 649 318 649H182Z" transform="translate(618.894,148.02) scale(0.0093,-0.0093)"/></g>
+  <rect x="440.83" y="132.63" width="100" height="24" rx="2" style="fill:rgb(232,164,64);fill-opacity:0.08;stroke:rgb(232,164,64);stroke-width:1.3px;"/>
+  <g fill="rgb(232,164,64)" aria-label="DIFFUSION"><path d="M92 0V730H281Q352 730 403.5 703.0Q455 676 483.5 627.0Q512 578 512 511V220Q512 153 483.5 103.5Q455 54 403.5 27.0Q352 0 281 0ZM182 80H281Q347 80 384.5 117.0Q422 154 422 220V511Q422 576 384.5 613.0Q347 650 281 650H182Z" transform="translate(464.591,148.02) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(470.451,148.02) scale(0.0093,-0.0093)"/><path d="M95 0V730H525V648H183V406H499V324H185V0Z" transform="translate(476.311,148.02) scale(0.0093,-0.0093)"/><path d="M95 0V730H525V648H183V406H499V324H185V0Z" transform="translate(482.171,148.02) scale(0.0093,-0.0093)"/><path d="M300 -10Q198 -10 144.0 46.5Q90 103 90 200V730H180V200Q180 140 209.5 105.0Q239 70 300 70Q360 70 390.0 105.0Q420 140 420 200V730H510V200Q510 102 456.5 46.0Q403 -10 300 -10Z" transform="translate(488.031,148.02) scale(0.0093,-0.0093)"/><path d="M304 -10Q198 -10 135.0 46.0Q72 102 72 200H162Q162 139 201.0 104.5Q240 70 304 70Q366 70 403.0 106.0Q440 142 440 200Q440 244 416.5 276.5Q393 309 349 321L238 352Q169 372 129.5 423.5Q90 475 90 545Q90 603 116.0 647.0Q142 691 189.0 715.5Q236 740 297 740Q359 740 406.5 715.5Q454 691 481.0 647.5Q508 604 508 547H418Q418 597 384.0 628.5Q350 660 297 660Q244 660 211.0 628.5Q178 597 178 547Q178 507 199.5 478.5Q221 450 260 439L374 407Q447 387 487.5 331.5Q528 276 528 200Q528 104 467.0 47.0Q406 -10 304 -10Z" transform="translate(493.891,148.02) scale(0.0093,-0.0093)"/><path d="M105 0V82H254V648H105V730H495V648H346V82H495V0Z" transform="translate(499.751,148.02) scale(0.0093,-0.0093)"/><path d="M300 -10Q202 -10 145.0 47.0Q88 104 88 210V520Q88 626 145.0 683.0Q202 740 300 740Q398 740 455.0 683.0Q512 626 512 521V210Q512 104 455.0 47.0Q398 -10 300 -10ZM300 71Q359 71 390.5 104.5Q422 138 422 200V530Q422 592 390.5 625.5Q359 659 300 659Q242 659 210.0 625.5Q178 592 178 530V200Q178 138 210.0 104.5Q242 71 300 71Z" transform="translate(505.611,148.02) scale(0.0093,-0.0093)"/><path d="M90 0V730H210L433 105Q431 130 428.5 166.5Q426 203 424.5 243.5Q423 284 423 320V730H510V0H390L168 625Q170 601 172.0 564.5Q174 528 175.5 487.5Q177 447 177 410V0Z" transform="translate(511.471,148.02) scale(0.0093,-0.0093)"/></g>
+  <rect x="333.21" y="132.63" width="100" height="24" rx="2" style="fill:rgb(232,164,64);fill-opacity:0.08;stroke:rgb(232,164,64);stroke-width:1.3px;"/>
+  <g fill="rgb(232,164,64)" aria-label="AMOUNT"><path d="M50 0 240 730H361L550 0H459L411 194H190L142 0ZM208 270H392L336 495Q320 559 311.0 602.0Q302 645 300 658Q298 645 289.0 602.0Q280 559 264 496Z" transform="translate(365.793,147.89) scale(0.0093,-0.0093)"/><path d="M72 0V730H205L298 414L395 730H528V0H441V345Q441 394 442.5 457.5Q444 521 447.0 586.0Q450 651 454 703L336 326H258L145 694Q153 620 156.0 532.0Q159 444 159 345V0Z" transform="translate(371.653,147.89) scale(0.0093,-0.0093)"/><path d="M300 -10Q202 -10 145.0 47.0Q88 104 88 210V520Q88 626 145.0 683.0Q202 740 300 740Q398 740 455.0 683.0Q512 626 512 521V210Q512 104 455.0 47.0Q398 -10 300 -10ZM300 71Q359 71 390.5 104.5Q422 138 422 200V530Q422 592 390.5 625.5Q359 659 300 659Q242 659 210.0 625.5Q178 592 178 530V200Q178 138 210.0 104.5Q242 71 300 71Z" transform="translate(377.513,147.89) scale(0.0093,-0.0093)"/><path d="M300 -10Q198 -10 144.0 46.5Q90 103 90 200V730H180V200Q180 140 209.5 105.0Q239 70 300 70Q360 70 390.0 105.0Q420 140 420 200V730H510V200Q510 102 456.5 46.0Q403 -10 300 -10Z" transform="translate(383.373,147.89) scale(0.0093,-0.0093)"/><path d="M90 0V730H210L433 105Q431 130 428.5 166.5Q426 203 424.5 243.5Q423 284 423 320V730H510V0H390L168 625Q170 601 172.0 564.5Q174 528 175.5 487.5Q177 447 177 410V0Z" transform="translate(389.233,147.89) scale(0.0093,-0.0093)"/><path d="M255 0V648H55V730H545V648H345V0Z" transform="translate(395.093,147.89) scale(0.0093,-0.0093)"/></g>
+
+  <g font-family="JetBrains Mono, ui-monospace, Menlo, Consolas, monospace">
+  <rect x="-97.43" y="80.0" width="100" height="24" rx="2" style="fill:rgb(196,96,176);fill-opacity:0.08;stroke:rgb(196,96,176);stroke-width:1.3px;"/>
+  <text x="-47.43" y="95.39" text-anchor="middle" font-size="9.3" fill="rgb(196,96,176)">UPSAMPLE 4×</text>
+  <path d="M2.57,92L10.23,92" style="fill:none;stroke:rgb(196,96,176);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <rect x="867.87" y="80.0" width="100" height="24" rx="2" style="fill:rgb(196,96,176);fill-opacity:0.08;stroke:rgb(196,96,176);stroke-width:1.3px;"/>
+  <text x="917.87" y="95.39" text-anchor="middle" font-size="9.3" fill="rgb(196,96,176)">DOWNSAMPLE 4×</text>
+  <rect x="975.53" y="80.0" width="100" height="24" rx="2" style="fill:rgb(196,96,176);fill-opacity:0.08;stroke:rgb(196,96,176);stroke-width:1.3px;"/>
+  <text x="1025.53" y="95.39" text-anchor="middle" font-size="9.3" fill="rgb(196,96,176)">OUT GAIN</text>
+  <rect x="1083.19" y="80.0" width="100" height="24" rx="2" style="fill:rgb(196,96,176);fill-opacity:0.08;stroke:rgb(196,96,176);stroke-width:1.3px;"/>
+  <text x="1133.19" y="95.39" text-anchor="middle" font-size="9.3" fill="rgb(196,96,176)">OUTPUT FILTER</text>
+  <rect x="1190.85" y="80.0" width="100" height="24" rx="2" style="fill:rgb(196,96,176);fill-opacity:0.08;stroke:rgb(196,96,176);stroke-width:1.3px;"/>
+  <text x="1240.85" y="95.39" text-anchor="middle" font-size="9.3" fill="rgb(196,96,176)">CLIP</text>
+  <rect x="1298.51" y="80.0" width="100" height="24" rx="2" style="fill:rgb(196,96,176);fill-opacity:0.08;stroke:rgb(196,96,176);stroke-width:1.3px;"/>
+  <text x="1348.51" y="95.39" text-anchor="middle" font-size="9.3" fill="rgb(196,96,176)">DRY / WET</text>
+  <path d="M967.87,92L975.53,92" style="fill:none;stroke:rgb(196,96,176);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M1075.53,92L1083.19,92" style="fill:none;stroke:rgb(196,96,176);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M1183.19,92L1190.85,92" style="fill:none;stroke:rgb(196,96,176);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <path d="M1290.85,92L1298.51,92" style="fill:none;stroke:rgb(196,96,176);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  <rect x="763.69" y="132.632" width="100" height="24" rx="2" style="fill:rgb(232,164,64);fill-opacity:0.08;stroke:rgb(232,164,64);stroke-width:1.3px;"/>
+  <text x="813.69" y="148.02" text-anchor="middle" font-size="9.3" fill="rgb(232,164,64)">TANH</text>
+  <path d="M763.69,144.632L756.03,144.632" style="fill:none;stroke:rgb(90,100,117);stroke-width:1.3px;stroke-linecap:round;stroke-linejoin:round;"/>
+  </g>
+</svg>
+
+    <div class="prose" style="margin-top: 20px;">
+      <p>Reading the flow: the input is upsampled 4&times;, then per channel takes input gain and the input filter and reaches the sum node, where the filtered, scaled feedback is added. The <a href="#hilbert">Hilbert network</a> splits that into an in-phase / quadrature pair, and the <a href="#ssbpm">shift / PM matrix</a> combines it with the carrier (a band-limited, mip-selected wavetable, filtered first and read as a cos/sin pair). The result is the <em>wet</em> signal, which branches two ways:</p>
+      <p><strong>Into the loop:</strong> a <code>tanh</code> soft-clip keeps the loop bounded, then the delay line, feedback filter, diffusion, cross-feed, and amount return it to the sum node <em>ahead</em> of the Hilbert stage. <strong>Out of the core:</strong> the wet is decimated 4&times; back to the host rate, where output gain drives it through the output filter into the selectable clip stage, then the dry/wet blend against the saved dry copy.</p>
+    </div>
+
+    <div class="note amber">
+      <strong>Loop topology</strong> &nbsp; Feedback returns <em>before</em> the Hilbert network, so the Hilbert allpass chain and the input filters sit inside the feedback loop. A <a href="#feedback">flush</a> must therefore clear them along with the delay line and diffusion buffers.
+    </div>
+  </section>
+
+  <!-- OVERSAMPLING -->
+  <section id="oversampling">
+    <div class="section-header teal">
+      <h2>Oversampling</h2>
+      <span class="section-tag">4x, polyphase IIR</span>
+    </div>
+
+    <div class="prose">
+      <p>The whole core runs at 4&times;, built from two cascaded 2&times; half-band stages. The nonlinear stages (the feedback drive clip, the shift/PM multiply, and the carrier itself) generate content above the base Nyquist; oversampling gives them headroom before decimation folds anything audible back down.</p>
+    </div>
+
+    <table class="param-table">
+      <tr><th>Property</th><th>Value</th></tr>
+      <tr><td class="param-name">Factor</td><td class="param-desc">4&times; (two half-band stages of 2&times;)</td></tr>
+      <tr><td class="param-name">Filter type</td><td class="param-desc">Polyphase IIR half-band; low-latency band-limiting</td></tr>
+      <tr><td class="param-name">Channels</td><td class="param-desc">2 (stereo)</td></tr>
+    </table>
+
+    <div class="note teal">
+      <strong>Shared structure</strong> &nbsp; The oversampler's half-band filters and the <a href="#hilbert">Hilbert network</a> are both polyphase-IIR allpass structures, designed by the same method (Laurent de Soras' HIIR technique). The oversampler applies it as a band-limiting decimator; the Hilbert chain applies it as a 90&deg; phase splitter.
+    </div>
+  </section>
+
+  <!-- FILTERS -->
+  <section id="filters">
+    <div class="section-header amber">
+      <h2>Filters</h2>
+      <span class="section-tag">state-variable, shared design</span>
+    </div>
+
+    <div class="prose">
+      <p>Every filter in Engram (input, carrier, feedback, and output, each with a highpass and a lowpass) is a topology-preserving (zero-delay-feedback) state-variable filter. Cutoff is frequency-prewarped, so the resonant peak lands at the requested frequency at any sample rate. The input, carrier, and feedback filters run at 4&times;; the <a href="#output">output filter</a> runs at the base rate.</p>
+    </div>
+
+    <table class="param-table">
+      <tr><th>Property</th><th>Value</th></tr>
+      <tr><td class="param-name">Cutoff range</td><td class="param-range">2 Hz &ndash; 20 kHz</td></tr>
+      <tr><td class="param-name">Resonance (Q) range</td><td class="param-range">0.1 &ndash; 18</td></tr>
+      <tr><td class="param-name">Default Q</td><td class="param-range">0.7071 <span class="param-desc">(Butterworth, maximally flat)</span></td></tr>
+      <tr><td class="param-name">Slopes</td><td class="param-desc">12 dB/oct (one stage) or 24 dB/oct (two cascaded stages)</td></tr>
+      <tr><td class="param-name">Display ceiling</td><td class="param-desc">Q = 18 shows as ~25 dB of resonant peak</td></tr>
+    </table>
+
+    <div class="sub-section" style="margin-top: 28px;">
+      <h3 class="amber">24 dB/oct cascade</h3>
+      <div class="prose">
+        <p>The 24 dB/oct slope cascades two filter stages. To keep the composite response maximally flat at the default Q, the two stages take the 4-pole Butterworth section Q values rather than both using the dialled resonance:</p>
+      </div>
+      <div class="formula amber"><span class="cmt">// 24 dB/oct:</span>
+stage 1 Q = <span class="v">0.5412</span>                        <span class="cmt">// = 1 / (2&middot;cos(&pi;/8)), fixed, independent of the dial</span>
+stage 2 Q = clamp(dialQ &times; <span class="v">1.8478</span>, 0.1, 18)   <span class="cmt">// = 2&middot;cos(&pi;/8); dialQ 0.7071 -> 1.3066</span>
+
+<span class="cmt">// 12 dB/oct:</span>
+stage Q   = dialQ</div>
+      <div class="prose">
+        <p>At the default dial Q of 0.7071 the two stages become <code>0.5412</code> and <code>1.3066</code>, the 4-pole Butterworth pair (maximally flat 24 dB/oct). Raising the dial pushes stage 2 more resonant while stage 1 stays fixed.</p>
+      </div>
+      <div class="note amber">
+        <strong>No cutoff smoothing</strong> &nbsp; Cutoff and Q moves are applied raw, without a smoothing ramp. A resonant filter swept faster than its own ring time will "zap", which is expected filter behaviour. For a slew, shape the modulating LFO. When the slope is switched back to 12 dB, the idle second stage is cleared so stale energy cannot blip on re-engage.
+      </div>
+    </div>
+  </section>
+
+  <!-- CARRIER OSCILLATOR -->
+  <section id="carrier">
+    <div class="section-header teal">
+      <h2>Carrier Oscillator</h2>
+      <span class="section-tag">wavetable, mips, glide, quadrature</span>
+    </div>
+
+    <div class="prose">
+      <p>The carrier is a single-cycle wavetable oscillator. In shift mode it supplies a quadrature (sine/cosine) pair; in PM mode only its real leg is used. Its waveform is either drawn in the node editor (custom table) or extracted from an audio-file crop (external table).</p>
+    </div>
+
+    <table class="param-table">
+      <tr><th>Property</th><th>Value</th></tr>
+      <tr><td class="param-name">Table size</td><td class="param-range">2048 samples, linear interpolation</td></tr>
+      <tr><td class="param-name">Default frequency</td><td class="param-range">130.81 Hz <span class="param-desc">(C3)</span></td></tr>
+      <tr><td class="param-name">Frequency range</td><td class="param-range">0 &ndash; 8000 Hz</td></tr>
+      <tr><td class="param-name">Anti-aliasing</td><td class="param-desc">4 band-limited mip tables (FFT-baked)</td></tr>
+    </table>
+
+    <div class="sub-section" style="margin-top: 28px;">
+      <h3 class="teal">Mip anti-aliasing</h3>
+      <div class="prose">
+        <p>The table is baked into 4 band-limited copies by FFT (forward transform, zero the bins above the cutoff, inverse). Each mip keeps a fixed harmonic count; the cutoffs are spaced &times;4 to match the 4&times; oversampling, so the selected mip always holds every audible harmonic and none that alias, at any host rate.</p>
+      </div>
+      <div class="formula"><span class="cmt">// harmonic-count cutoff per mip (brightest -> dullest)</span>
+mip 0: <span class="v">1024</span> harmonics
+mip 1: <span class="v">256</span>  harmonics
+mip 2: <span class="v">64</span>   harmonics
+mip 3: <span class="v">16</span>   harmonics
+
+<span class="cmt">// selection, per sample, from carrier freq and the oversampled rate</span>
+safeHarmonics = floor( (rate &times; 4) / (2 &middot; carrierHz) )
+pick the brightest mip whose cutoff &le; safeHarmonics</div>
+      <div class="prose">
+        <p>All 4 mips are normalised by the brightest mip's peak, so there is no amplitude jump at a mip crossover.</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Quadrature pair</h3>
+      <div class="prose">
+        <p>The imaginary leg is the same table read a quarter cycle ahead:</p>
+      </div>
+      <div class="formula">real leg = table( phase )
+imag leg = table( phase + 0.25 )     <span class="cmt">// +90 deg, shift mode only</span></div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Glide</h3>
+      <div class="prose">
+        <p>Carrier frequency changes are smoothed by a one-pole toward the target, per oversampled sample. The coefficient is set from the glide time against the oversampled rate; under 0.5&nbsp;ms it snaps (coefficient = 1).</p>
+      </div>
+      <div class="formula">coeff = 1 &minus; e^( &minus;1 / (rate &times; 4 &middot; t) )      <span class="cmt">// t = glide time in seconds</span>
+freq += (targetFreq &minus; freq) &middot; coeff          <span class="cmt">// per oversampled sample</span></div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Tempo sync (carrier)</h3>
+      <div class="prose">
+        <p>With sync on, the carrier frequency is stepped through beat divisions rather than set in Hz. There are 11 divisions, each an exact power-of-two multiple of the tempo reference, scaled by a note-duration type (straight / dotted / triplet).</p>
+      </div>
+      <table class="param-table">
+        <tr><th>Divisions (straight)</th><th>Multipliers</th></tr>
+        <tr><td class="param-desc">8 bar &hellip; 1/128</td>
+            <td class="param-range">0.03125 &hellip; 32.0 (&times;2 steps)</td></tr>
+        <tr><td class="param-name">Duration type</td><td class="param-range">straight 1.0 &middot; dotted 1.5 &middot; triplet 0.6667</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- HILBERT -->
+  <section id="hilbert">
+    <div class="section-header teal">
+      <h2>Hilbert Network</h2>
+      <span class="section-tag">polyphase IIR 90-deg splitter</span>
+    </div>
+
+    <div class="prose">
+      <p>The analytic (90&deg;-phase) pair of the input is formed by a polyphase IIR allpass network: two parallel branches whose outputs differ by ~90&deg; across the band. It replaces an FIR Hilbert transform with a few allpass multiplies and near-flat magnitude.</p>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Section form</h3>
+      <div class="prose">
+        <p>Each of the 4 stages per branch is a second-order allpass in the <code>&pi;/2</code> phaser form <code>(a &minus; z&#8315;&sup2;) / (1 &minus; a&middot;z&#8315;&sup2;)</code>, run as:</p>
+      </div>
+      <div class="formula">y[n] = a &middot; ( x[n] + y[n&minus;2] ) &minus; x[n&minus;2]
+
+<span class="cmt">// per channel: 4 stages on branch A, 4 on branch B</span>
+A = allpass chain with coefficients a[0..3]
+B = allpass chain with coefficients b[0..3]
+A = one-sample delay of A          <span class="cmt">// aligns the A/B pair to 90 deg</span></div>
+      <div class="prose">
+        <p>Branch A drives the real leg of the analytic signal, branch B the imaginary leg. The extra one-sample delay on A brings the two branches into a 90&deg; relationship.</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Coefficients</h3>
+      <div class="prose">
+        <p>The 8 coefficients are computed when the engine prepares, from the oversampled rate, with a transition band set to keep phase accuracy down to 20&nbsp;Hz:</p>
+      </div>
+      <div class="formula">transition band = 20 Hz / (oversampled Nyquist)
+8 coefficients -> 4 for branch A, 4 for branch B</div>
+      <div class="prose">
+        <p>At a 44.1&nbsp;kHz host rate (176.4&nbsp;kHz oversampled) the design produces:</p>
+      </div>
+      <div class="formula">branch A: <span class="v">0.6924</span>   <span class="v">0.9361</span>   <span class="v">0.9882</span>   <span class="v">0.9987</span>
+branch B: <span class="v">0.4022</span>   <span class="v">0.8562</span>   <span class="v">0.9723</span>   <span class="v">0.9953</span></div>
+      <div class="note teal">
+        <strong>Rate-dependent</strong> &nbsp; These coefficients are recomputed for the actual oversampled rate whenever the engine prepares, so phase accuracy holds across host sample rates. The values above are the design at 44.1&nbsp;kHz, shown for reference.
+      </div>
+    </div>
+
+    <div class="note amber">
+      <strong>Inside the loop</strong> &nbsp; The Hilbert states sit inside the feedback loop and ring for hundreds of samples (a dispersive tail). A flush must zero all allpass states and the A-branch delay, or the ring re-seeds the just-emptied delay line. The tail is also why the wet path's true onset (~8 samples) is longer than the reported oversampler latency (~4).
+    </div>
+
+    <div class="note teal">
+      <strong>Stereo drift is intrinsic</strong> &nbsp; Frequency shifting rotates phase continuously, so the two channels drift apart over time (barberpole). That is a property of the method, and allpass decorrelation does not apply.
+    </div>
+  </section>
+
+  <!-- SHIFT & PM -->
+  <section id="ssbpm">
+    <div class="section-header teal">
+      <h2>Shift &amp; PM Math</h2>
+      <span class="section-tag">two algorithms</span>
+    </div>
+
+    <div class="prose">
+      <p>Two algorithms combine the Hilbert pair (call the two legs <em>I</em> and <em>Q</em>) with the carrier pair. <strong>Additive</strong> is the default frequency-shifter / ring-mod path; <strong>Exponential</strong> is FM-style phase modulation. The carrier is filtered <em>before</em> this stage in both.</p>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Additive: frequency shift / ring mod</h3>
+      <div class="prose">
+        <p>The Hilbert pair is multiplied by the carrier's quadrature pair to give an upper and a lower sideband; Sideband Blend equal-power crossfades between them.</p>
+      </div>
+      <div class="formula">USB = I &middot; cos &minus; Q &middot; sin        <span class="cmt">// cos, sin = carrier real / imag legs</span>
+LSB = I &middot; cos + Q &middot; sin
+
+<span class="cmt">// equal-power blend, Sideband Blend b in [-1, +1]</span>
+&phi;   = (b + 1) / 2 &middot; &pi;/2
+out = LSB &middot; cos &phi; + USB &middot; sin &phi;</div>
+      <div class="prose">
+        <p>At blend <code>&minus;1</code> the output is the pure lower sideband (shift down); at <code>+1</code>, pure upper (shift up); at <code>0</code> (default) both sidebands sum at equal power with the carrier suppressed: ring modulation.</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="purple">Exponential: phase modulation</h3>
+      <div class="prose">
+        <p>Here the filtered carrier value becomes a rotation angle applied to the analytic input. The rotator is unit-magnitude, so the output is fixed to the upper sideband and Sideband Blend has no effect. PM Depth is the timbral control.</p>
+      </div>
+      <div class="formula purple">&theta;   = PM Depth &middot; c            <span class="cmt">// c = filtered carrier wave</span>
+out = I &middot; cos &theta; &minus; Q &middot; sin &theta;      <span class="cmt">// unit-magnitude rotation</span></div>
+      <div class="prose">
+        <p>PM Depth ranges 0&ndash;10 (a modulation index, linear dial). Filtering the carrier first means the carrier filter shapes the modulation index while the rotator itself stays unit-magnitude.</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Carrier bleed</h3>
+      <div class="prose">
+        <p>Carrier bleed reintroduces audible carrier feedthrough, applied only while transport is playing. The two algorithms handle it differently. The additive path injects a DC offset before the Hilbert network, which re-emerges as carrier tone; the PM path mixes the raw carrier wave straight into the wet signal (a DC-offset route would degenerate to DC at low PM depth).</p>
+      </div>
+      <div class="formula">Additive:     input += bleed                <span class="cmt">// pre-Hilbert DC offset</span>
+Exponential:  out   += bleed &middot; carrierWave    <span class="cmt">// raw carrier mixed after the matrix</span></div>
+    </div>
+  </section>
+
+  <!-- FEEDBACK -->
+  <section id="feedback">
+    <div class="section-header amber">
+      <h2>Feedback Loop</h2>
+      <span class="section-tag">drive, delay, diffusion, crossfeed</span>
+    </div>
+
+    <div class="prose">
+      <p>The wet signal is soft-clipped and pushed into a delay line; the delayed output is read back, filtered, diffused, cross-fed, scaled, and summed back into the input before the Hilbert stage. The whole loop runs at 4&times;.</p>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="amber">Drive clip</h3>
+      <div class="prose">
+        <p>Before entering the delay, the wet signal passes a <code>tanh</code> soft-clip that saturates around &plusmn;16, keeping the loop bounded:</p>
+      </div>
+      <div class="formula amber">stored = tanh( wet / 16 ) &times; 16     <span class="cmt">// soft ceiling at +/-16</span></div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="amber">Delay line</h3>
+      <table class="param-table">
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td class="param-name">Interpolation</td><td class="param-desc">Fractional delay, linear interpolation</td></tr>
+        <tr><td class="param-name">Max length</td><td class="param-range">16 s</td></tr>
+        <tr><td class="param-name">Time range</td><td class="param-range">1 ms &ndash; 16000 ms (default 15 ms)</td></tr>
+        <tr><td class="param-name">Amount range</td><td class="param-range">0 &ndash; 1.5 (default 0)</td></tr>
+      </table>
+      <div class="prose">
+        <p>Two time-change behaviours, chosen by the delay mode:</p>
+      </div>
+      <div class="formula amber"><span class="k">PITCH</span> (default): the read position slews one-pole toward the target
+         over ~5 ms; moving the read point repitches the tail (Doppler)
+
+<span class="k">FADE</span>: crossfade between the old read and the new target over 30 ms
+         (triggered once the target moves more than 1 sample)</div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="amber">Diffusion</h3>
+      <div class="prose">
+        <p>A 4-stage cascade of allpass sections in the feedback path smears the discrete delay echoes. The dial is a <strong>wet blend</strong>. The allpasses always run (their buffers stay fed, so the output is coherent the instant the dial is raised), and the dial blends the diffused output against the dry feedback. The allpass coefficient is held fixed, so the smear character stays constant across the dial.</p>
+      </div>
+      <div class="formula amber"><span class="cmt">// Schroeder allpass, per stage:</span>
+H(z) = ( &minus;g + z&#8315;&#7488; ) / ( 1 &minus; g &middot; z&#8315;&#7488; )
+
+g (fixed)   = <span class="v">0.70</span>
+delays (ms) = <span class="v">4, 6, 9, 13</span>            <span class="cmt">// converted to samples at 4x rate</span>
+
+<span class="cmt">// wet blend, w = diffusion dial [0,1]</span>
+out = dry + w &middot; (diffused &minus; dry)    <span class="cmt">// w=0 -> exactly dry</span></div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="amber">Filters, cross-feed, stereo</h3>
+      <table class="param-table">
+        <tr><th>Control</th><th>Range / behaviour</th></tr>
+        <tr><td class="param-name">FB filter</td><td class="param-desc">Highpass + lowpass, 12/24 dB, at 4&times; (same design as <a href="#filters">Filters</a>). Defaults 20 Hz / 20 kHz.</td></tr>
+        <tr><td class="param-name">Cross-feed</td><td class="param-range">0 &ndash; 0.5 &nbsp;<span class="param-desc">left = left(1&minus;c) + right&middot;c, and mirror</span></td></tr>
+        <tr><td class="param-name">Amount stereo</td><td class="param-range">&plusmn;0.5 &nbsp;<span class="param-desc">additive per-channel spread on the amount</span></td></tr>
+        <tr><td class="param-name">Delay stereo offset</td><td class="param-range">&plusmn;1 &nbsp;<span class="param-desc">left &times; 2^(offset&middot;7), right &divide; the same (symmetric)</span></td></tr>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="red">Flush</h3>
+      <div class="prose">
+        <p>Flush is edge-triggered (button or a routed modulation source through a near-rail trigger). On the rising edge the loop is emptied <em>at that sample</em> (delay line, feedback filters, diffusion buffers, the Hilbert states, and the input filters), and the oversampler reset is deferred to the next block boundary (it spans the block and cannot be reset mid-loop). All of these seed or re-seed the loop, so a partial flush lets a strongly unstable setting slowly regrow.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUTPUT -->
+  <section id="output">
+    <div class="section-header teal">
+      <h2>Output Stage</h2>
+      <span class="section-tag">drive, clip modes, filter, mix</span>
+    </div>
+
+    <div class="prose">
+      <p>After decimation, each sample runs through: drive gain &rarr; the output filter (base rate) &rarr; a selectable nonlinearity (clip/limit) &rarr; dry/wet blend. The filter was moved ahead of the clip (v0.9.43.14) so the clip is the last shaping stage and its clamp reaches the blend intact &mdash; a post-clip filter phase-shifts the clamped waveform into peaks above the ceiling. Output gain is placed <em>before</em> the clip, so it doubles as a drive control: clean when backed off, saturated when pushed. All four modes cap at &plusmn;1.0 (0 dBFS).</p>
+    </div>
+
+    <div class="formula">g = sample &times; outputGain           <span class="cmt">// gain in dB [-60, +24], default 0; drive</span>
+x = outputFilter(g)                   <span class="cmt">// base-rate SVF, now pre-clip; x feeds the modes below</span></div>
+
+    <div class="sub-section" style="margin-top: 24px;">
+      <h3 class="teal">Clip modes</h3>
+      <div class="formula"><span class="k">SATURATE</span>  y = tanh(x)                       <span class="cmt">// unity small-signal, soft everywhere</span>
+
+<span class="k">HARD</span>      y = clamp(x, &minus;1, +1)               <span class="cmt">// brick-wall</span>
+
+<span class="k">SOFT</span>*     y = x                             if |x| &le; 0.707   <span class="cmt">// transparent below -3 dBFS</span>
+          y = sign(x)&middot;(0.707 + 0.293&middot;tanh((|x|&minus;0.707)/0.293))  above the knee
+
+<span class="k">LIMITER</span>   target gain = |x| &gt; 1 ? 1/|x| : 1   <span class="cmt">// hold |y| &le; 1</span>
+          gain follows target: ~2 ms attack, ~80 ms release
+          y = x &middot; gain</div>
+      <div class="prose">
+        <p><span class="teal">*</span> SOFT is the default. It is transparent below &minus;3&nbsp;dBFS and above that knee compresses toward the 1.0 asymptote (<code>0.707 + 0.293 = 1.0</code>).</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="teal">Filter &amp; mix</h3>
+      <div class="prose">
+        <p>The output filter is the same state-variable design running at the base rate; it is applied to the drive-gained signal <em>before</em> the clip (the <code>x</code> fed to the modes above), so the clip stays the last shaping stage and holds the ceiling. The final blend mutes the dry path with the input-mute gate, so a gated input bypass silences the whole input path:</p>
+      </div>
+      <div class="formula">out = dry &middot; (1 &minus; inputMute) &middot; (1 &minus; dryWet) + wet &middot; dryWet</div>
+    </div>
+
+    <div class="note teal">
+      <strong>Metering</strong> &nbsp; The stage publishes a post-gain pre-clip peak (the level hitting the nonlinearity, for the gain meter and dBFS readout) and a drive depth <code>1 &minus; |out| / |in|</code> (0 clean, &rarr;1 hard-clipped; for the limiter this reads as gain reduction), taken as a block maximum across both channels.
+    </div>
+  </section>
+
+  <!-- ENVELOPE FOLLOWER -->
+  <section id="envelope">
+    <div class="section-header purple">
+      <h2>Envelope Follower</h2>
+      <span class="section-tag">attack/release detector, base rate</span>
+    </div>
+
+    <div class="prose">
+      <p>The envelope follower is a per-sample attack/release peak detector with hold, threshold rescaling, an offset delay, and an output smoother. It runs at the base rate and drives the modulation matrix as its first source. Two instances (left and right) support stereo modes.</p>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="purple">Detector</h3>
+      <div class="formula purple"><span class="cmt">// attack / hold / release on the rectified input</span>
+if in &gt; env:   env = attackCoeff &middot;(env &minus; in) + in ; reset hold
+elif holding:  count down the hold
+else:          env = releaseCoeff&middot;(env &minus; in) + in
+
+<span class="cmt">// coefficient: time to fall from 100% to 1%</span>
+coeff = exp( ln(0.01) / (t &middot; rate) )      <span class="cmt">// t = attack/release time in seconds</span></div>
+      <div class="prose">
+        <p>Attack 0 (default) makes the rise instant: a true peak read, with the smoother handling any softening without changing level.</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="purple">Threshold, offset, smooth</h3>
+      <div class="formula purple"><span class="cmt">// threshold: rescale [threshold, 1] -> [0, 1], floor below to zero</span>
+out = max( 0, (env &minus; threshold) / (1 &minus; threshold) )
+
+<span class="cmt">// offset: a plain delay of the output (0..500 ms)</span>
+
+<span class="cmt">// smooth: one-pole lowpass on the output</span>
+coeff = 1 &minus; exp( &minus;1 / (t &middot; rate) )         <span class="cmt">// t = smooth time; 0 -> pass-through</span>
+smoothed += coeff &middot; (out &minus; smoothed)</div>
+    </div>
+
+    <div class="prose">
+      <p><strong>Hold</strong> freezes the envelope at its peak for a set count of samples before release begins, so short transients sustain rather than decaying immediately. <strong>Depth</strong> is a sensitivity gain on the detector output (in dB, then clamped to 1.0) that lets a quiet source reach full scale.</p>
+      <p>The input is rectified before the detector, and the channel mode chooses what to rectify: mono <strong>Sum / Left / Right / Max</strong>, or in stereo mode <strong>Normal</strong> (each channel follows its own input) / <strong>Max</strong> (both follow the louder channel), giving two independent envelopes for stereo modulation.</p>
+    </div>
+  </section>
+
+  <!-- LFO -->
+  <section id="lfo">
+    <div class="section-header purple">
+      <h2>LFO Bank</h2>
+      <span class="section-tag">4x wavetable LFO + random</span>
+    </div>
+
+    <div class="prose">
+      <p>Four independent wavetable LFOs run at the base rate (rate 5&nbsp;ms&ndash;120&nbsp;s). A phasor reads the drawn shape each sample; that shape is then crossfaded against a random generator, jitter is layered on, and a one-pole smoother rounds the result. The four LFOs are the second through fifth modulation sources.</p>
+    </div>
+
+    <div class="sub-section" style="margin-top: 22px;">
+      <h3 class="purple">Shape, smooth, glide</h3>
+      <div class="prose">
+        <p>The shape is a drawn single-cycle table, read at the phasor position (plus a start-phase offset). <strong>Smooth</strong> is a one-pole lowpass on the output (same form as the envelope follower's smoother) that rounds sharp corners without shifting the shape. <strong>Glide</strong> portamentos the <em>rate</em> itself: when the rate changes (a synced division jump, a modulated rate), the phasor frequency slews to the new value over the glide time rather than stepping, so tempo-locked LFOs bend between divisions instead of clicking. <strong>Offset</strong> adds a DC bias to the output (&plusmn;2), and <strong>Stereo</strong> spreads the two channels' phase apart.</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="purple">Random subsystem</h3>
+      <div class="prose">
+        <p>The Random dial crossfades the drawn shape against a random generator. The three modes differ in <em>how the random signal is built</em>; the distinction is the interpolation lattice:</p>
+      </div>
+      <table class="param-table">
+        <tr><th>Mode</th><th>Mechanism</th></tr>
+        <tr><td class="param-name">STEP</td><td class="param-desc">Slew-then-hold sample &amp; hold. On each cycle a new random target is drawn; the output smoothsteps from the previous value to it over the first <em>glide</em> fraction of the cycle, then holds. Glide 0 gives instant jumps (classic S&amp;H); higher glide rounds the steps.</td></tr>
+        <tr><td class="param-name">DRIFT</td><td class="param-desc"><strong>Perlin gradient noise.</strong> Random <em>slopes</em> (&plusmn;1) sit on an integer lattice; between them the output interpolates two gradient&middot;distance terms with a smoothstep. Because the lattice stores gradients rather than levels, the curve passes through <em>zero at every lattice point</em>: a smooth, self-centering wander that rarely holds at an extreme.</td></tr>
+        <tr><td class="param-name">FLOW</td><td class="param-desc"><strong>Value noise.</strong> The lattice stores random <em>values</em> instead of slopes, smoothstep-interpolated between them. The output reaches those values, so unlike DRIFT it is never forced through zero: it roams the full range and lingers near the rails. Busier and less centered than DRIFT.</td></tr>
+      </table>
+      <div class="prose">
+        <p>Both DRIFT and FLOW sum two octaves (a second, faster noise layer added to the first) and pass through an edge-shaping power curve driven by a slow noise layer, which biases the distribution toward the rails. <strong>Rand Speed</strong> scales the generator rate against the LFO rate (0.125&ndash;8&times;); <strong>Rand Stereo</strong> blends the right channel between a phase-lagged copy of the left and an independent noise track.</p>
+      </div>
+      <div class="note purple">
+        <strong>Perlin vs value noise</strong> &nbsp; Same smoothstep interpolation, opposite lattice contents. Storing gradients (Perlin/DRIFT) ties the curve to zero at each node, so the motion always returns through center (gentle). Storing values (FLOW) lets each node be anywhere, so the curve holds wherever the random draw lands (wandering). Perlin: Ken Perlin, SIGGRAPH 1985.
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="purple">Jitter</h3>
+      <div class="prose">
+        <p>Jitter is a second sample-and-hold layered on <em>before</em> the smoother, running at its own rate (1&ndash;100&nbsp;Hz) unrelated to the LFO rate. Each step draws both a new random target <em>and</em> a new duration of 0.5&ndash;1.5&times; the base interval, linearly interpolated across that span, so step heights and step lengths are both irregular. Left and right run separate accumulators (right offset half a cycle) for stereo width.</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="purple">Sync &amp; trigger</h3>
+      <div class="prose">
+        <p>Synced, the rate steps through 13 tempo divisions (1/128 to 32 bars, each a factor-two multiple) scaled by the note-duration type; Glide (above) is what smooths the jump between divisions. LFOs also take note-on <strong>retrigger</strong> (reset the phasor on a note) and <strong>one-shot</strong> (run one cycle from the start phase, then hold).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MATRIX -->
+  <section id="matrix">
+    <div class="section-header purple">
+      <h2>Modulation Matrix</h2>
+      <span class="section-tag">7 sources x 98 targets</span>
+    </div>
+
+    <div class="prose">
+      <p>Every routing is a cell in a 7&times;98 matrix. Sources are summed per target each sample; how the summed amount maps onto a target's value is decided by that target's <em>curve</em>, so a filter cutoff moves in octaves while a gain moves in dB. Generators are read with a one-sample delay relative to the engine (the uniform cost of the per-sample interleave).</p>
+    </div>
+
+    <table class="param-table">
+      <tr><th>Sources (7)</th><th></th></tr>
+      <tr><td class="param-desc" colspan="2">Envelope Follower, LFO 1&ndash;4, MIDI Velocity, MIDI Note</td></tr>
+    </table>
+
+    <div class="sub-section" style="margin-top: 22px;">
+      <h3 class="purple">Fold &amp; scale</h3>
+      <div class="formula purple"><span class="cmt">// per source value s, per cell:</span>
+v = unipolar ? (s + 1)/2 : s              <span class="cmt">// bipolar pass-through, or remap to 0..1</span>
+right uses its own source if the cell is stereo, else mirrors left
+
+<span class="cmt">// a per-source master scale [0,4] and one global scale [0,4] fold in:</span>
+amount = cellDepth &middot; masterScale &middot; globalScale</div>
+      <div class="prose">
+        <p>Disabled cells contribute exactly 0 (their depth is retained for display). The envelope follower and MIDI sources are always unipolar; the unipolar/bipolar choice applies only to LFO sources.</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="purple">Target curves</h3>
+      <div class="prose">
+        <p>Each target carries one curve that maps the summed modulation onto its value:</p>
+      </div>
+      <table class="param-table">
+        <tr><th>Curve</th><th>Mapping</th><th>Used by</th></tr>
+        <tr><td class="param-name">Linear</td><td class="param-range">base + mod&middot;scale</td><td class="param-desc">bleed, sideband, dry/wet, stereo spreads&hellip;</td></tr>
+        <tr><td class="param-name">Linear (rail-aware)</td><td class="param-range">excursion scales to the distance to each rail</td><td class="param-desc">filter resonance</td></tr>
+        <tr><td class="param-name">dB</td><td class="param-range">dB(base) + mod&middot;scale, back to gain</td><td class="param-desc">input gain, output gain (84 dB span)</td></tr>
+        <tr><td class="param-name">Exponential</td><td class="param-range">base &middot; 2^(mod&middot;octaves)</td><td class="param-desc">filter freqs, feedback delay</td></tr>
+        <tr><td class="param-name">Proportional</td><td class="param-range">base &middot; (1 + mod&middot;fraction)</td><td class="param-desc">carrier freq (Bode, Hz-symmetric)</td></tr>
+        <tr><td class="param-name">Position-space</td><td class="param-range">even along the dial's own skew</td><td class="param-desc">time dials (glide, EF/LFO times, PM depth)</td></tr>
+      </table>
+      <div class="prose">
+        <p>The rail-aware resonance curve scales the excursion to the distance from the current value to each rail, so a bipolar source reaches a rail only at full depth and never flatlines the half-cycle nearest a rail. Filter resonance clamps to [0.1, 18]. Filter stereo-spread targets add directly onto the spread amount.</p>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="purple">Key scale constants</h3>
+      <table class="param-table">
+        <tr><th>Target group</th><th>Depth at full modulation</th></tr>
+        <tr><td class="param-name">Filter frequency</td><td class="param-range">&plusmn;4 octaves</td></tr>
+        <tr><td class="param-name">Filter stereo spread</td><td class="param-range">&plusmn;4 octaves</td></tr>
+        <tr><td class="param-name">Carrier frequency</td><td class="param-range">proportional fraction 3.0</td></tr>
+        <tr><td class="param-name">Feedback delay</td><td class="param-range">&plusmn;7 octaves</td></tr>
+        <tr><td class="param-name">LFO rate</td><td class="param-range">&plusmn;7.3 octaves</td></tr>
+        <tr><td class="param-name">Input / output gain</td><td class="param-range">84 dB span</td></tr>
+        <tr><td class="param-name">Jitter rate / rand speed</td><td class="param-range">6.644 / 6.0 octaves</td></tr>
+      </table>
+    </div>
+
+    <div class="sub-section">
+      <h3 class="purple">Trigger &amp; gate targets</h3>
+      <div class="prose">
+        <p>Some targets are edges rather than continuous values: LFO retrigger, flush, and the five bypass gates. A trigger with hysteresis converts the summed modulation into rising/falling edge events, with the threshold set near the top rail so a source only fires at (or summed to) near-full depth, and the gap preventing chatter:</p>
+      </div>
+      <div class="formula purple">rise at <span class="v">0.98</span>      fall at <span class="v">0.95</span>
+<span class="cmt">// re-arms only after falling back through 0.95</span></div>
+      <div class="prose">
+        <p>Bypass gates flip against the manual button state, then crossfade the effective bypass over ~2&nbsp;ms (click-free); the filter or feedback path always keeps running so its state never freezes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section id="sources">
+    <div class="section-header teal">
+      <h2>Sources</h2>
+      <span class="section-tag">references &amp; conventions</span>
+    </div>
+
+    <table class="param-table">
+      <tr><th>Component</th><th>Reference</th></tr>
+      <tr><td class="param-name">Hilbert / oversampler</td><td class="param-desc">Polyphase IIR half-band design, Laurent de Soras (HIIR).</td></tr>
+      <tr><td class="param-name">Butterworth cascade Q</td><td class="param-desc">4-pole Butterworth section Q values (0.5412 / 1.3066), EarLevel Engineering, 2016.</td></tr>
+      <tr><td class="param-name">Envelope follower</td><td class="param-desc">Attack/release coefficient formula, Bram, musicdsp.org #136 (2003).</td></tr>
+      <tr><td class="param-name">LFO jitter</td><td class="param-desc">Random stepped levels with random time per step, musicdsp.org #269.</td></tr>
+      <tr><td class="param-name">Naming convention</td><td class="param-desc">Bode frequency shifter / ring modulator; carrier = oscillator, modulator = input.</td></tr>
+    </table>
+  </section>
+
+</main>
+</div>
+
+<script>
+  // Highlight active nav link on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('nav a[href^="#"]');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
