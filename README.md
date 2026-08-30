@@ -2,17 +2,15 @@
 
 ### A unified quadrature modulation engine
 
-VST3 for macOS and Windows, from [track+trace](https://github.com/trackplustrace).
+VST3 for macOS and Windows, by [track+trace](https://github.com/trackplustrace).
 This is a public beta: it is stable enough to make music with, it is not finished, and it is
 not code-signed.
 
 > **Before you install on macOS, read [Installing on macOS](#installing-on-macos).** macOS
 > will tell you Engram may contain malware and offer to delete it, and the button that
-> deletes it is the default one. There is a way through, but macOS will not show it to you.
+> deletes it is the default option. There is a way through, but macOS will not show it to you.
 
 ## What it is
-
-*the short version*
 
 Engram takes incoming audio and multiplies it against an internal carrier oscillator using a
 quadrature (90°-phase) architecture, the same technique used to generate and demodulate
@@ -20,10 +18,6 @@ single-sideband radio. Depending on how you set it, the same signal path produce
 frequency shifting, classic ring modulation, and amplitude modulation, blending continuously
 between those. A separate phase-modulation algorithm swaps the frequency shift for FM-style
 timbres.
-
-It follows the Bode frequency shifter directly, and it uses that lineage's terminology rather
-than the FM-synth one: the carrier is the internal oscillator, and the modulator is your
-incoming audio.
 
 **Frequency shifting is not pitch shifting.** Pitch shifting multiplies every partial by the
 same ratio, so harmonic relationships survive. Frequency shifting adds a fixed Hz offset to
@@ -43,15 +37,7 @@ dialled in to spec. It rewards exploration and rarely sounds exactly the same tw
 
 ## What you need
 
-macOS 11 Big Sur or later, on Apple Silicon or Intel. Or Windows 10 or later, 64-bit. Either
-way you need a host that loads VST3 plugins.
-
-**There is no Audio Unit build, so Engram will not appear in Logic or GarageBand.** This is a
-decision rather than an omission. Engram is an audio effect that also reads MIDI, and AU
-forces a choice between the two. The plugin type that carries MIDI can only be placed in
-Logic's instrument slot, which means sidechaining audio in and roughly doubling your track
-count. The type that sits on an audio track where it belongs never receives MIDI at all.
-Neither is worth shipping, so AU is on hold until it is worth doing properly.
+macOS 11 Big Sur (or later) or Windows 10 64-bit (or later), and host that loads VST3 plugins.
 
 ## Installing on macOS
 
@@ -59,15 +45,10 @@ Neither is worth shipping, so AU is on hold until it is worth doing properly.
 
 macOS will refuse to open the installer and tell you Apple cannot verify it is free of
 malware. It says this about all unsigned software. Engram is unsigned because notarisation
-requires an Apple Developer Program membership at $99 a year, which a free beta does not yet
-justify. The warning is about a missing certificate, not about anything found in the
-software.
+requires a paid Apple Developer Program membership. The warning is about a missing certificate, 
+not about anything found in the software.
 
-Getting past it takes half a minute, but macOS gives you no hint of the route, and the most
-prominent button at every step throws the installer away.
-
-**"Move to Bin" is the default button, and it appears twice. Do not press it, and do not
-press Return.**
+Getting past it takes half a minute:
 
 1. Double-click `Engram.pkg`. macOS says *"Engram.pkg" Not Opened* and offers **Done** and
    **Move to Bin**. Press **Done**.
@@ -86,23 +67,24 @@ and never asks for an administrator password.
 The factory preset library installs to `~/Library/track+trace/Engram/presets` and is available
 the first time you open Engram.
 
-You only do this once, and only for the installer. The warning applies to the installer
-itself; the plugin it installs is not quarantined, so your DAW will load it without
-complaint and nothing here needs repeating on the next version.
+The warning applies to the installer, not the plug-in itself. So your DAW will load it without
+complaint.
 
 ## Installing on Windows
 
 The zip contains `Engram.vst3` and a folder named `Engram Presets`.
 
-Copy `Engram.vst3` into `C:\Program Files\Common Files\VST3`. Nothing is executed, so there is
-no security warning.
+Copy `Engram.vst3` into `C:\Program Files\Common Files\VST3`.
 
 `Engram Presets` is the factory preset library. Engram reads it where it sits, so move it
-somewhere permanent, not Downloads or a temporary folder. Open the preset menu, and at the
-bottom next to `Location:` click `CHANGE`, then select the `Engram Presets` folder. The presets
-load on the next scan. Without this step the preset list contains only Init.
+somewhere permanent, the default folder is 
+`C:\Users\<you>\AppData\Roaming\track+trace\Engram\presets`. 
 
-## Reporting problems
+If you install the presets to a custom location, open the preset menu, and at the bottom 
+next to `Location:` click `CHANGE`, then select your `Engram Presets` folder. The presets 
+load on the next scan.
+
+## Reporting issues
 
 Open an [issue](../../issues). That is what this repository is for.
 
@@ -112,27 +94,23 @@ and DAW with versions, what you did, what you expected, and what happened instea
 it happens every time or only sometimes, and mention the source material if the problem only
 shows up on certain audio.
 
-Crashes, silent failures, presets that fail to load, and anything that sounds wrong are all
-worth reporting. So is anything you found confusing. If you could not work out what a control
-did, that is a problem with the documentation and it is worth an issue too.
+Crashes, failures, confusing functionality, unexpected behaviour, feature requests, everything
+is worth reporting.
 
 Two things are known and expected rather than bugs. Engram is phase-dependent and never truly
 static, because frequency shifting continuously rotates the phase relationship between the
 channels and around the feedback loop. And a preset captures Engram's settings but not its
 sound, since the effect is driven by your live input: the same preset on different material,
-or at a different carrier rate, can sound completely different. Presets are starting points,
-not repeatable results.
+at a different carrier rate, or with different feedback amount or delay time can sound 
+completely different. Presets are starting points, not final results.
 
 ## Levels
 
-Engram's output is soft-clipped, so a feedback patch that runs away cannot run away to
-infinity — whatever happens inside the loop, what leaves it is bounded. That is the reason
-the instrument is safe to explore rather than something to be careful with.
+Engram's output is soft-clipped, a feedback patch that runs away cannot run away to
+infinity. So the instrument is safe to explore.
 
-It can still arrive at full scale suddenly, though, because that is what a resonance doing
-what resonances do sounds like. Watch your levels while you are pushing feedback, be kinder
-to yourself on headphones than on monitors, and keep the Panic control in reach — it flushes
-the feedback buffer.
+It can still arrive at full scale suddenly, especially with resonant filters applied. Watch 
+your levels while you are pushing feedback, use the Flush button to reset the feedback buffer.
 
 ## Source and terms
 
