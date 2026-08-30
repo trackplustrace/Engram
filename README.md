@@ -83,14 +83,24 @@ Engram installs to `~/Library/Audio/Plug-Ins/VST3` in your own home folder, whic
 scans, so it will be found on the next plugin rescan. It installs for your user account only
 and never asks for an administrator password.
 
+The factory preset library installs to `~/Library/track+trace/Engram/presets` and is available
+the first time you open Engram.
+
 You only do this once, and only for the installer. The warning applies to the installer
 itself; the plugin it installs is not quarantined, so your DAW will load it without
 complaint and nothing here needs repeating on the next version.
 
 ## Installing on Windows
 
-Extract the zip and copy `Engram.vst3` into `C:\Program Files\Common Files\VST3`. Nothing is
-executed, so nothing warns you about anything.
+The zip contains `Engram.vst3` and a folder named `Engram Presets`.
+
+Copy `Engram.vst3` into `C:\Program Files\Common Files\VST3`. Nothing is executed, so there is
+no security warning.
+
+`Engram Presets` is the factory preset library. Engram reads it where it sits, so move it
+somewhere permanent, not Downloads or a temporary folder. Open the preset menu, and at the
+bottom next to `Location:` click `CHANGE`, then select the `Engram Presets` folder. The presets
+load on the next scan. Without this step the preset list contains only Init.
 
 ## Reporting problems
 
