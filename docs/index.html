@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ENGRAM FM</title>
+<style>
+
+  :root {
+    --bg:        #0e1015;
+    --bg2:       #12151a;
+    --bg3:       #181c23;
+    --bg-block:  #1b202a;
+    --border:    #262d39;
+    --teal:      #00d4aa;
+    --teal-dim:  #008a72;
+    --amber:     #e8a440;
+    --purple:    #8a70e8;
+    --magenta:   #c460b0;
+    --text:      #c8d0dc;
+    --text-dim:  #5a6475;
+    --text-label: #76828e;
+    --text-head: #e8edf5;
+    --red:       #ff5f5f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Verdana, sans-serif;
+    font-weight: 400;
+    font-size: 12.5px;
+    line-height: 1.7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 80px 24px 64px;
+  }
+
+  .shell { width: 100%; max-width: 720px; }
+
+  .mono {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  /* Header */
+  header { margin-bottom: 56px; }
+
+  .label {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 44px;
+    font-weight: 600;
+    color: var(--text-head);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  .tagline {
+    margin-top: 18px;
+    font-size: 15px;
+    color: var(--text-label);
+    max-width: 560px;
+    line-height: 1.6;
+  }
+
+  .version-badge {
+    display: inline-block;
+    margin-top: 24px;
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 10px;
+    color: var(--teal-dim);
+    border: 1px solid var(--teal-dim);
+    padding: 3px 10px;
+    letter-spacing: 0.1em;
+  }
+
+  /* Link cards */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  a.card {
+    display: block;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    padding: 22px 24px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  }
+
+  a.card:hover {
+    border-color: var(--teal-dim);
+    background: var(--bg3);
+    transform: translateY(-2px);
+  }
+
+  a.card .card-label {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-label);
+    margin-bottom: 10px;
+  }
+
+  a.card h2 {
+    font-family: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-head);
+    letter-spacing: 0.02em;
+  }
+
+  a.card:hover h2 { color: var(--teal); }
+
+  a.card p {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-label);
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  footer a { color: var(--text-label); text-decoration: none; border-bottom: 1px solid var(--border); }
+  footer a:hover { color: var(--teal); border-bottom-color: var(--teal-dim); }
+
+  @media (max-width: 560px) {
+    body { padding: 56px 20px 48px; }
+    h1 { font-size: 34px; }
+    .cards { grid-template-columns: 1fr; }
+  }
+
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <header>
+    <div class="label">track+trace</div>
+    <h1>ENGRAM FM</h1>
+    <p class="tagline">A unified quadrature modulation engine — frequency shifting, ring
+      modulation, amplitude modulation and phase-modulation FM in a single signal path.
+      VST3 for macOS and Windows.</p>
+    <span class="version-badge">v1.0 — PUBLIC BETA</span>
+  </header>
+
+  <div class="cards">
+
+    <a class="card" href="https://github.com/trackplustrace/Engram">
+      <div class="card-label">Download</div>
+      <h2>Get Engram</h2>
+      <p>Downloads, install instructions for macOS and Windows, and the latest release notes.</p>
+    </a>
+
+    <a class="card" href="engram_manual.html">
+      <div class="card-label">Documentation</div>
+      <h2>Manual</h2>
+      <p>What every control does, the signal chain, the modulation system, and starting points.</p>
+    </a>
+
+    <a class="card" href="engram_dsp.html">
+      <div class="card-label">Documentation</div>
+      <h2>DSP Reference</h2>
+      <p>How the engine works under the hood — oversampling, the quadrature core, filters, output.</p>
+    </a>
+
+    <a class="card" href="https://github.com/trackplustrace/Engram/issues">
+      <div class="card-label">Support</div>
+      <h2>Report an Issue</h2>
+      <p>Bugs, confusing behaviour, and feature requests. That is what the repository is for.</p>
+    </a>
+
+  </div>
+
+  <footer>
+    Engram is a free public beta, provided as is and without warranty. It is not open source;
+    all rights reserved.<br>
+    Built with <a href="https://juce.com">JUCE</a>. Hilbert transform via
+    <a href="http://ldesoras.free.fr/prod.html">HIIR</a> by Laurent de Soras (WTFPL).
+  </footer>
+
+</div>
+
+</body>
+</html>
