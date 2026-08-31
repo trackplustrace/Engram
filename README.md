@@ -64,12 +64,13 @@ Getting past it takes half a minute:
 4. Authenticate with Touch ID or your password.
 5. The installer opens. Continue through it as normal.
 
-Engram installs to `~/Library/Audio/Plug-Ins/VST3` in your own home folder, which every DAW
-scans, so it will be found on the next plugin rescan. It installs for your user account only
-and never asks for an administrator password.
+Engram installs to `/Library/Audio/Plug-Ins/VST3`, which every DAW scans, so it will be found on
+the next plugin rescan. It installs for all users, so the installer asks for an administrator
+password once.
 
-The factory preset library installs to `~/Library/track+trace/Engram/presets` and is available
-the first time you open Engram.
+The factory preset library installs to `/Library/Audio/Presets/track+trace/Engram` and is
+available the first time you open Engram. Your own saved presets go to
+`~/Library/Audio/Presets/track+trace/Engram` in your home folder; Engram reads both.
 
 The warning applies to the installer, not the plug-in itself. So your DAW will load it without
 complaint.
